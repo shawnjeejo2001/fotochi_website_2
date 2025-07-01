@@ -40,14 +40,20 @@ export function PhotographerCard({ photographer, isHovered, onMouseEnter, onMous
   const renderMembershipBadge = () => {
     if (photographer.subscriptionPlan === "professional") {
       return (
-        <span className="ml-2 inline-block px-2 py-1 text-xs font-bold uppercase text-white bg-blue-500 rounded-full" style={{ backgroundColor: '#4299E1' }}>
+        <span
+          className="ml-2 inline-block px-2 py-1 text-xs font-bold uppercase text-white bg-blue-500 rounded-full"
+          style={{ backgroundColor: "#4299E1" }}
+        >
           PRO
         </span>
       )
     }
     if (photographer.subscriptionPlan === "premium") {
       return (
-        <span className="ml-2 inline-block px-2 py-1 text-xs font-bold uppercase text-gray-800 bg-yellow-400 rounded-full" style={{ backgroundColor: '#F6E05E' }}>
+        <span
+          className="ml-2 inline-block px-2 py-1 text-xs font-bold uppercase text-gray-800 bg-yellow-400 rounded-full"
+          style={{ backgroundColor: "#F6E05E" }}
+        >
           STUDIO
         </span>
       )
@@ -137,7 +143,6 @@ export function PhotographerCard({ photographer, isHovered, onMouseEnter, onMous
                 photographer.featured_images?.[0] ||
                 photographer.profile_image ||
                 photographer.portfolioImage ||
-                "/placeholder.svg?height=200&width=400&query=wedding photography" ||
                 "/placeholder.svg" ||
                 "/placeholder.svg"
               }
@@ -152,7 +157,6 @@ export function PhotographerCard({ photographer, isHovered, onMouseEnter, onMous
                 photographer.featured_images?.[1] ||
                 photographer.featured_images?.[0] ||
                 photographer.profile_image ||
-                "/placeholder.svg?height=200&width=400" ||
                 "/placeholder.svg" ||
                 "/placeholder.svg"
               }
@@ -164,9 +168,9 @@ export function PhotographerCard({ photographer, isHovered, onMouseEnter, onMous
         </div>
         <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all duration-500 flex flex-col justify-between p-4 sm:p-6 text-white">
           <div className="text-center opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-          <div className="flex items-center justify-center">
-            <h3 className="text-lg sm:text-xl font-bold mb-2">{photographer.name}</h3>
-            {renderMembershipBadge()}
+            <div className="flex items-center justify-center">
+              <h3 className="text-lg sm:text-xl font-bold mb-2">{photographer.name}</h3>
+              {renderMembershipBadge()}
             </div>
             <div className="flex items-center justify-center gap-1 text-sm mb-3">
               <MapPin className="w-4 h-4" />
