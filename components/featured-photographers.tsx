@@ -280,7 +280,7 @@ export default function FeaturedPhotographers() {
 
           {/* Default Card Content */}
           <div
-            className={`absolute inset-0 bg-white transition-opacity duration-300 ${
+            className={`absolute inset-0 bg-white text-gray-900 transition-opacity duration-300 ${
               hoveredPhotographer === photographer.id ? "opacity-0" : "opacity-100"
             }`}
           >
