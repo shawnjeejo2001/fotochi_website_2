@@ -3,7 +3,7 @@
 import type React from "react"
 import { useState, useEffect, useRef } from "react"
 import { Input } from "@/components/ui/input"
-import { Loader2 } from 'lucide-react'
+import { Loader2 } from "lucide-react"
 
 // Define types for Google Maps API
 declare global {
