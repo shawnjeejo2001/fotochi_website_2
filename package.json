@@ -10,7 +10,8 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "latest",
-    "@hookform/resolvers": "^3.9.1",
+    "@clerk/nextjs": "latest",
+    "@hookform/resolvers": "latest",
     "@radix-ui/react-accordion": "latest",
     "@radix-ui/react-alert-dialog": "latest",
     "@radix-ui/react-aspect-ratio": "latest",
@@ -40,6 +41,7 @@
     "@radix-ui/react-tooltip": "latest",
     "@stripe/react-stripe-js": "latest",
     "@stripe/stripe-js": "latest",
+    "@supabase/auth-helpers-nextjs": "latest",
     "@supabase/auth-helpers-react": "latest",
     "@supabase/supabase-js": "latest",
     "autoprefixer": "^10.4.20",
@@ -65,7 +67,7 @@
     "tailwind-merge": "^2.5.5",
     "tailwindcss-animate": "^1.0.7",
     "vaul": "latest",
-    "zod": "^3.24.1"
+    "zod": "latest"
   },
   "devDependencies": {
     "@types/node": "^22",

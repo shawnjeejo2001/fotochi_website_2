@@ -340,9 +340,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <div className="mb-4 sm:mb-0">
-              <button onClick={() => router.push("/")} className="text-left hover:opacity-80 transition-opacity">
-                <span className="text-4xl font-semibold leading-none text-gray-900">Fotochi</span>
-              </button>
+              <span className="text-4xl font-semibold leading-none text-gray-900">Fotochi</span>
               <p className="text-sm sm:text-base text-gray-600 mt-2">
                 Find the perfect photographer or videographer for your needs
               </p>

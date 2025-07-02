@@ -105,18 +105,12 @@ export async function GET(request: NextRequest) {
       filteredPhotographers = filteredPhotographers.filter((p) => p.rating >= minRatingNum)
     }
 
-    const transformedPhotographers = filteredPhotographers.map((photographer) => ({
-      ...photographer,
-      additionalStyles: [photographer.additional_style1, photographer.additional_style2].filter(Boolean),
-    }));
-
-
-    console.debug(`Found ${transformedPhotographers.length} photographers`)
+    console.debug(`Found ${filteredPhotographers.length} photographers`)
 
     return NextResponse.json({
       success: true,
-      photographers: transformedPhotographers,
-      total: transformedPhotographers.length,
+      photographers: filteredPhotographers,
+      total: filteredPhotographers.length,
     })
   } catch (error) {
     console.error("Search API error:", error)

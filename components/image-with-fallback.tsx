@@ -3,6 +3,7 @@
 import type React from "react"
 
 import { useState } from "react"
+
 import { Loader2 } from "lucide-react"
 
 interface ImageWithFallbackProps extends React.ImgHTMLAttributes<HTMLImageElement> {
@@ -11,6 +12,7 @@ interface ImageWithFallbackProps extends React.ImgHTMLAttributes<HTMLImageElemen
 
 export default function ImageWithFallback({ src, alt, fallbackSrc, className, ...rest }: ImageWithFallbackProps) {
   const [isLoading, setIsLoading] = useState(true)
+
   const [error, setError] = useState(false)
 
   const handleLoad = () => {
@@ -19,6 +21,7 @@ export default function ImageWithFallback({ src, alt, fallbackSrc, className, ..
 
   const handleError = () => {
     setIsLoading(false)
+
     setError(true)
   }
 
@@ -29,6 +32,7 @@ export default function ImageWithFallback({ src, alt, fallbackSrc, className, ..
           <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
         </div>
       )}
+
       <img
         src={error ? fallbackSrc : src}
         alt={alt || "Image"}
