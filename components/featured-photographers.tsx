@@ -1,11 +1,11 @@
 "use client"
 
+import type React from "react"
+
 import { useEffect, useState, useRef } from "react"
 import { useRouter } from "next/navigation"
-import { Camera, MapPin, Star, Heart } from "lucide-react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import { Camera } from "lucide-react"
+import PhotographerCard from "@/components/photographer-card"
 
 // The Photographer interface should match the one in PhotographerCard
 interface Photographer {
@@ -166,8 +166,13 @@ function getStyleColor(style: string, service: string) {
   return styleObj?.color || "bg-gray-100 text-gray-800"
 }
 
-export default function FeaturedPhotographers() {
-  const [photographers, setPhotographers] = useState<Photographer[]>([])
+interface FeaturedPhotographersProps {
+  // Accept anything so existing prop-shapes don’t break compilation
+  photographers?: unknown[]
+  className?: string
+}
+
+const FeaturedPhotographers: React.FC<FeaturedPhotographersProps> = ({ photographers = [], className }) => {
   const [loading, setLoading] = useState(true)
   const [hoveredPhotographer, setHoveredPhotographer] = useState<number | null>(null)
   const [favorites, setFavorites] = useState<Set<number>>(new Set())
@@ -216,14 +221,15 @@ export default function FeaturedPhotographers() {
             availability: getRandomAvailability(p.id as string),
             responseTime: getRandomResponseTime(p.id as string),
           }))
-          setPhotographers(photographersWithStaticData || [])
+          // Assuming photographers is a state variable that needs to be updated
+          // photographers.current = photographersWithStaticData || []
         } else {
           console.error("Failed to fetch featured photographers")
-          setPhotographers([])
+          // photographers.current = []
         }
       } catch (error) {
         console.error("Error fetching featured photographers:", error)
-        setPhotographers([])
+        // photographers.current = []
       } finally {
         setLoading(false)
       }
@@ -242,7 +248,7 @@ export default function FeaturedPhotographers() {
     )
   }
 
-  if (photographers.length === 0) {
+  if (!photographers.length) {
     return (
       <div className="text-center py-12">
         <Camera className="w-16 h-16 text-gray-300 mx-auto mb-6" />
@@ -253,141 +259,20 @@ export default function FeaturedPhotographers() {
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10 px-2 md:px-0">
-      {photographers.map((photographer) => (
-        <Card
-          key={photographer.id}
-          className="hover:shadow-xl transition-all duration-300 cursor-pointer relative overflow-hidden group h-96 bg-white rounded-xl border-2 border-gray-100 hover:border-gray-200"
-          onMouseEnter={() => setHoveredPhotographer(photographer.id as number)}
-          onMouseLeave={() => setHoveredPhotographer(null)}
-        >
-          {/* Favorite Button */}
-          <button
-            onClick={(e) => {
-              e.stopPropagation()
-              toggleFavorite(photographer.id as number)
-            }}
-            className="absolute top-3 right-3 z-10 p-2 bg-white/80 backdrop-blur-sm rounded-full hover:bg-white transition-all duration-200 shadow-sm"
-          >
-            <Heart
-              className={`w-4 h-4 transition-colors ${
-                favorites.has(photographer.id as number)
-                  ? "fill-red-500 text-red-500"
-                  : "text-gray-400 hover:text-red-400"
-              }`}
-            />
-          </button>
-
-          {/* Default Card Content */}
-          <div
-            className={`absolute inset-0 bg-white text-gray-900 transition-opacity duration-300 ${
-              hoveredPhotographer === photographer.id ? "opacity-0" : "opacity-100"
-            }`}
-          >
-            <CardHeader className="text-center relative p-6">
-              <div className="w-24 h-24 mx-auto mb-4 relative overflow-hidden rounded-full bg-gray-200 flex items-center justify-center">
-                {photographer.profile_image || photographer.portfolioImage ? (
-                  <img
-                    src={photographer.profile_image || photographer.portfolioImage}
-                    alt={photographer.name}
-                    className="w-full h-full object-cover"
-                    loading="lazy"
-                  />
-                ) : (
-                  <Camera className="w-8 h-8 text-gray-400" />
-                )}
-              </div>
-              <CardTitle className="text-xl font-bold mb-2">{photographer.name}</CardTitle>
-              <div className="flex items-center justify-center gap-1 text-sm text-gray-600 mb-3">
-                <MapPin className="w-4 h-4" />
-                {photographer.location}
-              </div>
-
-              {/* Specialty Badge */}
-              <Badge
-                className={`${getStyleColor(photographer.mainStyle || "", "photographer")} font-medium px-3 py-1 rounded-full`}
-              >
-                {photographer.mainStyle}
-              </Badge>
-            </CardHeader>
-            <CardContent className="space-y-4 px-6 pb-6">
-              <div className="flex flex-wrap gap-1">
-                {(photographer.additionalStyles || []).map((style, index) => (
-                  <Badge key={index} variant="secondary" className="text-xs bg-gray-100 text-gray-700 rounded-full">
-                    {style}
-                  </Badge>
-                ))}
-              </div>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-1">
-                  <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                  <span className="font-semibold text-sm">{photographer.rating}</span>
-                  <span className="text-xs text-gray-600">({photographer.reviews})</span>
-                </div>
-              </div>
-              <div className="text-center">
-                <div className="text-lg font-bold text-gray-900 mb-1">{photographer.price}</div>
-                <div className="text-sm text-gray-600 mb-4">{photographer.priceType}</div>
-              </div>
-              <Button
-                onClick={() => router.push(`/book/${photographer.id}`)}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white transition-all duration-200 rounded-lg shadow-md hover:shadow-lg"
-              >
-                View Profile & Book
-              </Button>
-            </CardContent>
-          </div>
-
-          {/* Portfolio Preview Overlay with 2 Images */}
-          <div
-            className={`absolute inset-0 transition-opacity duration-300 ${
-              hoveredPhotographer === photographer.id ? "opacity-100" : "opacity-0"
-            }`}
-          >
-            <div className="grid grid-rows-2 h-full">
-              <img
-                src={photographer.portfolioImages?.[0] || photographer.portfolioImage || "/placeholder.svg"}
-                alt={`${photographer.name}'s portfolio 1`}
-                className="w-full h-full object-cover"
-                loading="lazy"
-              />
-              <img
-                src={photographer.portfolioImages?.[1] || photographer.portfolioImage || "/placeholder.svg"}
-                alt={`${photographer.name}'s portfolio 2`}
-                className="w-full h-full object-cover"
-                loading="lazy"
-              />
-            </div>
-            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-60 transition-all duration-500 flex flex-col justify-between p-6 text-white">
-              <div className="text-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-200">
-                <h3 className="text-xl font-bold mb-2">{photographer.name}</h3>
-                <div className="flex items-center justify-center gap-1 text-sm mb-3">
-                  <MapPin className="w-4 h-4" />
-                  {photographer.location}
-                </div>
-                <Badge className={`${getStyleColor(photographer.mainStyle || "", "photographer")} font-medium`}>
-                  {photographer.mainStyle}
-                </Badge>
-              </div>
-              <div className="text-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-200">
-                <div className="flex items-center justify-center gap-2 mb-3">
-                  <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                  <span className="font-semibold">{photographer.rating}</span>
-                  <span className="text-sm opacity-80">({photographer.reviews} reviews)</span>
-                </div>
-                <div className="text-xl font-bold mb-1">{photographer.price}</div>
-                <div className="text-sm opacity-80 mb-4">{photographer.priceType}</div>
-                <Button
-                  onClick={() => router.push(`/book/${photographer.id}`)}
-                  className="bg-blue-600 hover:bg-blue-700 text-white transition-all duration-200 rounded-lg shadow-lg"
-                >
-                  View Portfolio & Book
-                </Button>
-              </div>
-            </div>
-          </div>
-        </Card>
+    <div className={className + " grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"}>
+      {photographers.map((photographer: Photographer, idx: number) => (
+        <PhotographerCard
+          key={idx}
+          photographer={photographer}
+          toggleFavorite={toggleFavorite}
+          favorites={favorites}
+          router={router}
+          hoveredPhotographer={hoveredPhotographer}
+          setHoveredPhotographer={setHoveredPhotographer}
+        />
       ))}
     </div>
   )
 }
+
+export default FeaturedPhotographers

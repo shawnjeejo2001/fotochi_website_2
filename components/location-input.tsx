@@ -1,9 +1,9 @@
 "use client"
 
 import type React from "react"
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, type FC, type ChangeEvent } from "react"
 import { Input } from "@/components/ui/input"
-import { Loader2 } from "lucide-react"
+import { Loader2, Search } from "lucide-react"
 
 // Define types for Google Maps API
 declare global {
@@ -36,20 +36,19 @@ declare global {
 }
 
 interface LocationInputProps {
-  value: string
-  onChange: (value: string) => void
-  onCoordinatesChange?: (lat: number, lng: number) => void
   placeholder?: string
+  onChange?: (value: string) => void
+  onCoordinatesChange?: (lat: number, lng: number) => void
   className?: string
 }
 
-export default function LocationInput({
-  value,
+const LocationInput: FC<LocationInputProps> = ({
+  placeholder = "Enter a city…",
   onChange,
   onCoordinatesChange,
-  placeholder = "Enter address, city, state, or zip",
   className = "",
-}: LocationInputProps) {
+}) => {
+  const [value, setValue] = useState("")
   const [suggestions, setSuggestions] = useState<string[]>([])
   const [loading, setLoading] = useState(false)
   const [showSuggestions, setShowSuggestions] = useState(false)
@@ -106,15 +105,16 @@ export default function LocationInput({
   }, [googleLoaded])
 
   // Handle input changes
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newValue = e.target.value
-    onChange(newValue)
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value
+    setValue(val)
+    onChange?.(val)
 
-    if (newValue.length > 2 && autocompleteRef.current) {
+    if (val.length > 2 && autocompleteRef.current) {
       setLoading(true)
       autocompleteRef.current.getPlacePredictions(
         {
-          input: newValue,
+          input: val,
           types: ["address"],
           componentRestrictions: { country: "us" },
         },
@@ -192,7 +192,7 @@ export default function LocationInput({
 
   // Handle suggestion selection
   const handleSelectSuggestion = (suggestion: string) => {
-    onChange(suggestion)
+    setValue(suggestion)
     setSuggestions([])
     setShowSuggestions(false)
 
@@ -239,13 +239,14 @@ export default function LocationInput({
   return (
     <div className="relative" ref={inputRef}>
       <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
         <Input
           type="text"
           value={value}
-          onChange={handleInputChange}
+          onChange={handleChange}
           onKeyPress={handleKeyPress}
           placeholder={placeholder}
-          className={className}
+          className={"pl-9 " + className}
         />
         {loading && (
           <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
@@ -276,3 +277,5 @@ export default function LocationInput({
     </div>
   )
 }
+
+export default LocationInput

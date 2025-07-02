@@ -112,7 +112,7 @@ export function PhotographerCard({ photographer }: PhotographerCardProps) {
 
                 <div className="flex-grow flex flex-col justify-between">
                     <div className="text-center mb-4">
-                        <h3 className="text-2xl font-bold mb-0.5">{photographer.name}</h3>
+                        <h3 className="text-2xl font-bold mb-0.5" style={{ color: 'black' }}>{photographer.name}</h3>
                         <div className="flex items-center justify-center gap-1 text-sm text-gray-700 font-medium">
                             <MapPin className="w-4 h-4 text-blue-400" />
                             {photographer.location}

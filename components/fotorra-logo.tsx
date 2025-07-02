@@ -1,58 +1,69 @@
 "use client"
 
+import Image from "next/image"
 import { cn } from "@/lib/utils"
+import type { FC } from "react"
 
-interface FotochiLogoProps {
+/**
+ * Fully featured logo component (re-added because the file had been deleted).
+ * Works with previous imports:
+ *   import FotochiLogo from "@/components/fotorra-logo"
+ *   import { FotochiLogo } from "@/components/fotorra-logo"
+ */
+const SIZE_MAP = {
+  xs: { px: 20, text: "text-sm" },
+  sm: { px: 32, text: "text-lg" },
+  md: { px: 40, text: "text-xl" },
+  lg: { px: 48, text: "text-2xl" },
+  xl: { px: 64, text: "text-3xl" },
+  "2xl": { px: 80, text: "text-4xl" },
+  "3xl": { px: 128, text: "text-5xl" },
+  "4xl": { px: 256, text: "text-6xl" },
+} as const
+
+type Preset = keyof typeof SIZE_MAP
+type TextSize = Preset | "5xl" | "6xl" | "7xl" | "8xl" | "9xl" | "base"
+
+export interface FotochiLogoProps {
+  size?: Preset
+  customSize?: number
+  textSize?: TextSize
   showLogo?: boolean
   showText?: boolean
-  textSize?: "sm" | "base" | "lg" | "xl" | "2xl" | "3xl" | "4xl" | "5xl" | "6xl"
-  logoSize?: "sm" | "md" | "lg" | "xl"
-  className?: string
   variant?: "default" | "white"
-  size?: "sm" | "base" | "lg" | "xl" | "2xl" | "3xl" | "4xl" | "5xl" | "6xl" // Legacy support
+  className?: string
 }
 
-export default function FotochiLogo({
+export const FotochiLogo: FC<FotochiLogoProps> = ({
+  size = "md",
+  customSize,
+  textSize,
   showLogo = true,
   showText = true,
-  textSize = "2xl",
-  logoSize = "md",
-  className,
   variant = "default",
-  size, // Legacy support
-}: FotochiLogoProps) {
-  // Handle legacy size prop
-  const actualTextSize = size || textSize
-
-  const textColorClass = variant === "white" ? "text-white" : "text-gray-900"
-
-  const logoSizeClasses = {
-    sm: "w-6 h-6",
-    md: "w-8 h-8",
-    lg: "w-10 h-10",
-    xl: "w-12 h-12",
-  }
-
-  const textSizeClasses = {
-    sm: "text-sm",
-    base: "text-base",
-    lg: "text-lg",
-    xl: "text-xl",
-    "2xl": "text-2xl",
-    "3xl": "text-3xl",
-    "4xl": "text-4xl",
-    "5xl": "text-5xl",
-    "6xl": "text-6xl",
-  }
+  className,
+}) => {
+  const preset = SIZE_MAP[size]
+  const px = customSize ?? preset.px
+  const textClass = textSize ? `text-${textSize}` : preset.text
+  const colour = variant === "white" ? "text-white" : "text-gray-900"
 
   return (
-    <div className={cn("flex items-center gap-2", className)}>
+    <span className={cn("inline-flex items-center gap-2 select-none", className)}>
       {showLogo && (
-        <img src="/fotochi-logo.png" alt="Fotochi Logo" className={cn("object-contain", logoSizeClasses[logoSize])} />
+        <Image
+          src="/fotochi-logo.png"
+          alt="Fotochi logo"
+          width={px}
+          height={px}
+          priority
+          unoptimized
+          className="object-contain"
+        />
       )}
-      {showText && <span className={cn("font-bold", textSizeClasses[actualTextSize], textColorClass)}>Fotochi</span>}
-    </div>
+      {showText && <span className={cn("font-semibold leading-none", textClass, colour)}>Fotochi</span>}
+    </span>
   )
 }
 
-export { FotochiLogo }
+export default FotochiLogo
