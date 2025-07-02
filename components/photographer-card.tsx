@@ -3,7 +3,7 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { MapPin, Star, Camera, Calendar, Clock, User, Heart } from "lucide-react"
+import { MapPin, Star, Calendar, Clock, User, Heart } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 
@@ -122,7 +122,9 @@ export function PhotographerCard({ photographer }: PhotographerCardProps) {
                     <div className="flex flex-wrap justify-center gap-2 mb-4">
                         {photographer.mainStyle && <Badge className={`${getStyleColor(photographer.mainStyle)} font-medium px-3 py-1 rounded-full`}>{photographer.mainStyle}</Badge>}
                         {filteredAdditionalStyles.slice(0, 2).map((style, index) => (
-                            <Badge key={index} variant="outline" className="text-xs rounded-full border-gray-200 text-gray-700 bg-gray-100">{style}</Badge>
+                            <Badge key={index} variant="secondary" className="font-normal rounded-full">
+                                {style}
+                            </Badge>
                         ))}
                     </div>
                     
