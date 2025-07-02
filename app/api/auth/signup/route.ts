@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { createServerSupabaseClient } from "@/lib/supabase"
+import { adminAuth, adminDb } from "@/lib/firebase-admin"
 
 export async function POST(request: Request) {
   try {
@@ -20,76 +20,58 @@ export async function POST(request: Request) {
     // Convert email to lowercase to make it case-insensitive
     const normalizedEmail = email.toLowerCase()
 
-    const supabase = createServerSupabaseClient()
-
     // First, create the auth user
     console.log("Creating auth user...")
-    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+    const userRecord = await adminAuth.createUser({
       email: normalizedEmail,
       password,
-      email_confirm: true, // Auto-confirm email for now
-      user_metadata: {
-        user_type: userType,
-        full_name: fullName,
-      },
+      displayName: fullName,
     })
 
-    if (authError) {
-      console.error("Auth creation error:", authError)
-      return NextResponse.json(
-        {
-          success: false,
-          error: authError.message,
-        },
-        { status: 400 },
-      )
-    }
-
-    if (!authData.user) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Failed to create user account",
-        },
-        { status: 500 },
-      )
-    }
-
-    console.log("Auth user created successfully:", authData.user.id)
+    console.log("Auth user created successfully:", userRecord.uid)
 
     try {
       // Create the appropriate profile based on user type
       if (userType === "client") {
         console.log("Creating client profile...")
-        const { error: clientError } = await supabase.from("clients").insert({
-          user_id: authData.user.id,
-          full_name: fullName || "",
-          phone: phone || null,
-          address: address || null,
-          created_at: new Date().toISOString(),
-        })
-
-        if (clientError) {
-          console.error("Client creation error:", clientError)
-          // Clean up auth user if client creation fails
-          await supabase.auth.admin.deleteUser(authData.user.id)
-          return NextResponse.json(
-            {
-              success: false,
-              error: "Failed to create client profile",
-            },
-            { status: 500 },
-          )
-        }
+        await adminDb
+          .collection("clients")
+          .doc(userRecord.uid)
+          .set({
+            userId: userRecord.uid,
+            fullName: fullName || "",
+            email: normalizedEmail,
+            phone: phone || null,
+            address: address || null,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          })
 
         console.log("Client profile created successfully")
+      } else if (userType === "provider") {
+        console.log("Creating provider profile...")
+        await adminDb
+          .collection("providers")
+          .doc(userRecord.uid)
+          .set({
+            userId: userRecord.uid,
+            fullName: fullName || "",
+            email: normalizedEmail,
+            phone: phone || null,
+            address: address || null,
+            status: "pending", // Providers need approval
+            createdAt: new Date(),
+            updatedAt: new Date(),
+          })
+
+        console.log("Provider profile created successfully")
       } else {
         // Clean up auth user for invalid user type
-        await supabase.auth.admin.deleteUser(authData.user.id)
+        await adminAuth.deleteUser(userRecord.uid)
         return NextResponse.json(
           {
             success: false,
-            error: "Invalid user type. Use /api/providers for photographer/videographer signup.",
+            error: "Invalid user type. Must be 'client' or 'provider'.",
           },
           { status: 400 },
         )
@@ -99,7 +81,7 @@ export async function POST(request: Request) {
         success: true,
         message: "Account created successfully",
         user: {
-          id: authData.user.id,
+          id: userRecord.uid,
           email: normalizedEmail,
           userType,
           fullName,
@@ -108,7 +90,7 @@ export async function POST(request: Request) {
     } catch (profileError) {
       console.error("Profile creation error:", profileError)
       // Clean up auth user if profile creation fails
-      await supabase.auth.admin.deleteUser(authData.user.id)
+      await adminAuth.deleteUser(userRecord.uid)
       return NextResponse.json(
         {
           success: false,

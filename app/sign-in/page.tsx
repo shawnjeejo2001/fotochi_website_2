@@ -1,83 +1,161 @@
 "use client"
 
-import { createClientComponentClient } from "@supabase/auth-helpers-nextjs"
-import { useRouter } from "next/navigation"
+import type React from "react"
+
 import { useState } from "react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Eye, EyeOff, Loader2 } from "lucide-react"
+import { useRouter } from "next/navigation"
+import Link from "next/link"
 
-export default function SignIn() {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [loading, setLoading] = useState(false)
+export default function SignInPage() {
   const router = useRouter()
-  const supabase = createClientComponentClient()
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  })
+  const [showPassword, setShowPassword] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
 
-  const handleSignIn = async () => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }))
+    if (error) setError("")
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
     setLoading(true)
+    setError("")
+
     try {
-      const { error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+      const response = await fetch("/api/auth/signin", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
       })
-      if (error) {
-        console.error("Error signing in:", error.message)
-        alert(error.message)
+
+      const data = await response.json()
+
+      if (data.success) {
+        // Store user data in localStorage
+        localStorage.setItem("fotochi_user", JSON.stringify(data.user))
+
+        // Redirect based on user type
+        if (data.user.user_type === "provider") {
+          router.push("/dashboard/photographer")
+        } else {
+          router.push("/dashboard/client")
+        }
       } else {
-        router.push("/dashboard")
+        setError(data.error || "Sign in failed")
       }
+    } catch (error) {
+      console.error("Sign in error:", error)
+      setError("An unexpected error occurred. Please try again.")
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-      <div className="w-full max-w-md p-6 bg-white rounded-lg shadow-md">
-        <div className="flex justify-center mb-6">
-          <span className="font-bold text-lg">Fotochi</span>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <Link href="/" className="text-3xl font-bold text-gray-900 hover:text-blue-600 transition-colors">
+            Fotochi
+          </Link>
+          <p className="text-gray-600 mt-2">Welcome back</p>
         </div>
-        <h2 className="text-2xl font-semibold text-center text-gray-700 mb-4">Sign In</h2>
-        <div className="mb-4">
-          <label htmlFor="email" className="block text-gray-700 text-sm font-bold mb-2">
-            Email
-          </label>
-          <input
-            type="email"
-            id="email"
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
-        <div className="mb-6">
-          <label htmlFor="password" className="block text-gray-700 text-sm font-bold mb-2">
-            Password
-          </label>
-          <input
-            type="password"
-            id="password"
-            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-        <div className="flex items-center justify-between">
-          <button
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-            type="button"
-            onClick={handleSignIn}
-            disabled={loading}
-          >
-            {loading ? "Signing In..." : "Sign In"}
-          </button>
-          <a
-            className="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800"
-            href="/sign-up"
-          >
-            Sign Up
-          </a>
-        </div>
+
+        <Card className="shadow-xl border-0">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl font-bold text-center">Sign In</CardTitle>
+            <CardDescription className="text-center">Enter your credentials to access your account</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {error && (
+                <Alert variant="destructive">
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
+
+              <div className="space-y-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  placeholder="Enter your email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  required
+                  className="h-11"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <div className="relative">
+                  <Input
+                    id="password"
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Enter your password"
+                    value={formData.password}
+                    onChange={handleInputChange}
+                    required
+                    className="h-11 pr-10"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              </div>
+
+              <Button type="submit" className="w-full h-11 bg-blue-600 hover:bg-blue-700" disabled={loading}>
+                {loading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Signing In...
+                  </>
+                ) : (
+                  "Sign In"
+                )}
+              </Button>
+            </form>
+
+            <div className="mt-6 text-center space-y-2">
+              <p className="text-sm text-gray-600">
+                Don't have an account?{" "}
+                <Link href="/sign-up" className="text-blue-600 hover:text-blue-700 font-medium">
+                  Sign up
+                </Link>
+              </p>
+              <p className="text-sm text-gray-600">
+                <Link href="/forgot-password" className="text-blue-600 hover:text-blue-700">
+                  Forgot your password?
+                </Link>
+              </p>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   )

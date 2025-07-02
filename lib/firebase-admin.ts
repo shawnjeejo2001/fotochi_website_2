@@ -1,0 +1,20 @@
+import { initializeApp, getApps, cert } from "firebase-admin/app"
+import { getAuth } from "firebase-admin/auth"
+import { getFirestore } from "firebase-admin/firestore"
+import { getStorage } from "firebase-admin/storage"
+
+// Initialize Firebase Admin SDK
+if (!getApps().length) {
+  initializeApp({
+    credential: cert({
+      projectId: "fotochi-9dbcb",
+      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
+    }),
+    storageBucket: "fotochi-9dbcb.firebasestorage.app",
+  })
+}
+
+export const adminAuth = getAuth()
+export const adminDb = getFirestore()
+export const adminStorage = getStorage()

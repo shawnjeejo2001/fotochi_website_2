@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { createServerSupabaseClient } from "@/lib/supabase"
+import { adminAuth, adminDb } from "@/lib/firebase-admin"
 
 export async function POST(request: Request) {
   try {
@@ -17,15 +17,61 @@ export async function POST(request: Request) {
       )
     }
 
-    const supabase = createServerSupabaseClient()
+    // For Firebase, we'll need to verify the user exists and get their profile
+    // Since we can't directly authenticate with email/password in admin SDK,
+    // we'll verify the user exists and return their profile
 
-    // Attempt to sign in the user
-    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
-      email: email.toLowerCase(),
-      password,
-    })
+    try {
+      const userRecord = await adminAuth.getUserByEmail(email.toLowerCase())
+      console.log("User found:", userRecord.uid)
 
-    if (authError) {
+      // Determine user type and fetch profile
+      let userProfile = null
+      let userType = "client" // default
+
+      // Check if user is a client
+      const clientDoc = await adminDb.collection("clients").doc(userRecord.uid).get()
+
+      if (clientDoc.exists) {
+        userProfile = clientDoc.data()
+        userType = "client"
+      } else {
+        // Check if user is a provider
+        const providerDoc = await adminDb.collection("providers").doc(userRecord.uid).get()
+
+        if (providerDoc.exists) {
+          userProfile = providerDoc.data()
+          userType = "provider"
+        }
+      }
+
+      if (!userProfile) {
+        console.error("No profile found for user:", userRecord.uid)
+        return NextResponse.json(
+          {
+            success: false,
+            error: "User profile not found",
+          },
+          { status: 404 },
+        )
+      }
+
+      console.log("User profile found:", userType)
+
+      return NextResponse.json({
+        success: true,
+        message: "Sign in successful",
+        user: {
+          id: userRecord.uid,
+          email: userRecord.email,
+          user_type: userType,
+          full_name: userProfile.fullName || userProfile.name,
+          profile_image: userProfile.profileImage || null,
+          provider: userType === "provider" ? userProfile : null,
+          client: userType === "client" ? userProfile : null,
+        },
+      })
+    } catch (authError) {
       console.error("Authentication failed:", authError)
       return NextResponse.json(
         {
@@ -35,73 +81,6 @@ export async function POST(request: Request) {
         { status: 401 },
       )
     }
-
-    if (!authData.user) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: "Authentication failed",
-        },
-        { status: 401 },
-      )
-    }
-
-    console.log("User authenticated successfully:", authData.user.id)
-
-    // Determine user type and fetch profile
-    let userProfile = null
-    let userType = "client" // default
-
-    // Check if user is a client
-    const { data: clientData, error: clientError } = await supabase
-      .from("clients")
-      .select("*")
-      .eq("user_id", authData.user.id)
-      .single()
-
-    if (clientData && !clientError) {
-      userProfile = clientData
-      userType = "client"
-    } else {
-      // Check if user is a provider
-      const { data: providerData, error: providerError } = await supabase
-        .from("providers")
-        .select("*")
-        .eq("user_id", authData.user.id)
-        .single()
-
-      if (providerData && !providerError) {
-        userProfile = providerData
-        userType = "provider"
-      }
-    }
-
-    if (!userProfile) {
-      console.error("No profile found for user:", authData.user.id)
-      return NextResponse.json(
-        {
-          success: false,
-          error: "User profile not found",
-        },
-        { status: 404 },
-      )
-    }
-
-    console.log("User profile found:", userType)
-
-    return NextResponse.json({
-      success: true,
-      message: "Sign in successful",
-      user: {
-        id: authData.user.id,
-        email: authData.user.email,
-        user_type: userType,
-        full_name: userProfile.full_name || userProfile.name,
-        profile_image: userProfile.profile_image || null,
-        provider: userType === "provider" ? userProfile : null,
-        client: userType === "client" ? userProfile : null,
-      },
-    })
   } catch (error) {
     console.error("Sign-in error:", error)
     return NextResponse.json(

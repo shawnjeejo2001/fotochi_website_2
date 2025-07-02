@@ -1,25 +1,23 @@
 import type React from "react"
 import type { Metadata } from "next"
 import "./globals.css"
-import { Providers } from "./providers"
 
 export const metadata: Metadata = {
-  title: "Fotochi | Book Photographers & Videographers",
-  description: "Professional Photography Platform - Connect with top photographers and videographers",
+  title: "v0 App",
+  description: "Created with v0",
   generator: "v0.dev",
-  icons: {
-    icon: [{ url: "/favicon.ico", type: "image/x-icon" }],
-    shortcut: "/favicon.ico",
-    apple: "/apple-icon.png",
-  },
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode
+}>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <head />
+    <html lang="en">
       <body>
-        <Providers>{children}</Providers>
+        <span className="text-xl font-bold text-gray-900">Fotochi</span>
+        {children}
       </body>
     </html>
   )

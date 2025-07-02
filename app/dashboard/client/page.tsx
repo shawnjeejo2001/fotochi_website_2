@@ -2,86 +2,35 @@
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { useEffect, useState } from "react"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 
-export default function DashboardClientPage() {
-  const [data, setData] = useState([
-    {
-      id: 1,
-      name: "John Doe",
-      email: "john.doe@example.com",
-      status: "Active",
-    },
-    {
-      id: 2,
-      name: "Jane Smith",
-      email: "jane.smith@example.com",
-      status: "Inactive",
-    },
-  ])
-
-  useEffect(() => {
-    // Simulate fetching data from an API
-    setTimeout(() => {
-      setData([
-        {
-          id: 1,
-          name: "John Doe",
-          email: "john.doe@example.com",
-          status: "Active",
-        },
-        {
-          id: 2,
-          name: "Jane Smith",
-          email: "jane.smith@example.com",
-          status: "Inactive",
-        },
-        {
-          id: 3,
-          name: "Peter Jones",
-          email: "peter.jones@example.com",
-          status: "Active",
-        },
-      ])
-    }, 500)
-  }, [])
-
+export default function ClientDashboard() {
   return (
-    <div className="container mx-auto p-4">
-      <div className="flex justify-between items-center mb-4">
-        <span className="font-bold text-lg">Fotochi</span>
-        <Button>Add User</Button>
-      </div>
-
-      <Card>
+    <main className="min-h-screen flex items-center justify-center bg-gray-50">
+      <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>Users</CardTitle>
-          <CardDescription>Manage your users here.</CardDescription>
+          <CardTitle>Dashboard</CardTitle>
+          <CardDescription>Manage your account settings.</CardDescription>
         </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[100px]">ID</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Status</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {data.map((user) => (
-                <TableRow key={user.id}>
-                  <TableCell className="font-medium">{user.id}</TableCell>
-                  <TableCell>{user.name}</TableCell>
-                  <TableCell>{user.email}</TableCell>
-                  <TableCell>{user.status}</TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+        <CardContent className="grid gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor="name">Name</Label>
+              <Input id="name" defaultValue="John Doe" className="mt-2" />
+            </div>
+            <div>
+              <Label htmlFor="email">Email</Label>
+              <Input id="email" defaultValue="john.doe@example.com" className="mt-2" type="email" />
+            </div>
+          </div>
+          <Button>Update Profile</Button>
+          <div className="flex items-center justify-between">
+            <span className="text-lg font-bold">Fotochi</span>
+            <Button variant="outline">Logout</Button>
+          </div>
         </CardContent>
       </Card>
-    </div>
+    </main>
   )
 }
