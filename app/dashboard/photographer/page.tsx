@@ -448,7 +448,12 @@ export default function PhotographerDashboard() {
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <span className="text-2xl font-bold text-gray-900 hover:text-blue-600 transition-colors">Fotochi</span>
+            <button
+              onClick={() => router.push("/")}
+              className="text-2xl font-bold text-gray-900 hover:text-blue-600 transition-colors"
+            >
+              Fotochi
+            </button>
             <div className="flex items-center gap-4">
               <Button variant="ghost" size="sm" className="text-gray-700 hover:bg-gray-100 hover:text-gray-900">
                 <Bell className="w-4 h-4" />
@@ -651,7 +656,7 @@ export default function PhotographerDashboard() {
                       <p className="text-gray-500">Upload your work to showcase your skills.</p>
                     </div>
                   )}
-                  <Button variant="outline" className="w-full bg-transparent" onClick={() => setActiveTab("portfolio")}>
+                  <Button variant="outline" className="w-full" onClick={() => setActiveTab("portfolio")}>
                     Manage Portfolio
                   </Button>
                 </CardContent>
@@ -668,11 +673,7 @@ export default function PhotographerDashboard() {
                     <h3 className="text-lg font-medium text-gray-900 mb-1">No requests yet</h3>
                     <p className="text-gray-500">When clients request your services, they'll appear here.</p>
                   </div>
-                  <Button
-                    variant="outline"
-                    className="w-full mt-4 bg-transparent"
-                    onClick={() => setActiveTab("requests")}
-                  >
+                  <Button variant="outline" className="w-full mt-4" onClick={() => setActiveTab("requests")}>
                     View All Requests
                   </Button>
                 </CardContent>

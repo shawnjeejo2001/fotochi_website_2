@@ -158,6 +158,9 @@ function calculateDistance(lat1: number, lng1: number, lat2: number, lng2: numbe
 
 // Get style color based on main style
 function getStyleColor(style: string, service: string) {
+  if (!style) {
+    return "bg-gray-100 text-gray-800";
+  }
   const styles = service === "photographer" ? photographyStyles : videographyStyles
   const styleObj = styles.find((s) => s.value === style.toLowerCase())
   return styleObj?.color || "bg-gray-100 text-gray-800"
@@ -337,9 +340,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <div className="mb-4 sm:mb-0">
-              <button onClick={() => router.push("/")} className="hover:opacity-80 transition-opacity">
-                <span className="text-4xl font-semibold leading-none text-gray-900">Fotochi</span>
-              </button>
+              <span className="text-4xl font-semibold leading-none text-gray-900">Fotochi</span>
               <p className="text-sm sm:text-base text-gray-600 mt-2">
                 Find the perfect photographer or videographer for your needs
               </p>
@@ -615,11 +616,13 @@ export default function Home() {
                         </div>
 
                         {/* Specialty Badge */}
-                        <Badge
-                          className={`${getStyleColor(photographer.mainStyle, service)} font-medium px-3 py-1 rounded-full`}
-                        >
-                          {photographer.mainStyle}
-                        </Badge>
+                        {photographer.mainStyle &&
+                            <Badge
+                            className={`${getStyleColor(photographer.mainStyle, service)} font-medium px-3 py-1 rounded-full`}
+                            >
+                            {photographer.mainStyle}
+                            </Badge>
+                        }
                       </CardHeader>
                       <CardContent className="space-y-4 px-6 pb-6">
                         <div className="flex flex-wrap gap-1">
@@ -685,9 +688,11 @@ export default function Home() {
                               </span>
                             )}
                           </div>
-                          <Badge className={`${getStyleColor(photographer.mainStyle, service)} font-medium`}>
-                            {photographer.mainStyle}
-                          </Badge>
+                          {photographer.mainStyle &&
+                            <Badge className={`${getStyleColor(photographer.mainStyle, service)} font-medium`}>
+                                {photographer.mainStyle}
+                            </Badge>
+                          }
                         </div>
                         <div className="text-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-200">
                           <div className="flex items-center justify-center gap-2 mb-3">

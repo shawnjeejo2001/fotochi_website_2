@@ -22,8 +22,8 @@ interface Photographer {
   subscriptionPlan?: string
   availability?: string
   responseTime?: string
-  profile_image?: string // To support different data structures
-  featured_images?: string[] // For the hover preview
+  profile_image?: string
+  featured_images?: string[]
 }
 
 // Get style color based on main style
@@ -166,12 +166,11 @@ function getStyleColor(style: string, service: string) {
 }
 
 interface FeaturedPhotographersProps {
-  // Accept anything so existing prop-shapes don’t break compilation
-  photographers?: unknown[]
   className?: string
 }
 
-const FeaturedPhotographers: React.FC<FeaturedPhotographersProps> = ({ photographers = [], className }) => {
+const FeaturedPhotographers: React.FC<FeaturedPhotographersProps> = ({ className }) => {
+  const [photographers, setPhotographers] = useState<Photographer[]>([])
   const [loading, setLoading] = useState(true)
   const [hoveredPhotographer, setHoveredPhotographer] = useState<number | null>(null)
   const [favorites, setFavorites] = useState<Set<number>>(new Set())
@@ -220,15 +219,14 @@ const FeaturedPhotographers: React.FC<FeaturedPhotographersProps> = ({ photograp
             availability: getRandomAvailability(p.id as string),
             responseTime: getRandomResponseTime(p.id as string),
           }))
-          // Assuming photographers is a state variable that needs to be updated
-          // photographers.current = photographersWithStaticData || []
+          setPhotographers(photographersWithStaticData || [])
         } else {
           console.error("Failed to fetch featured photographers")
-          // photographers.current = []
+          setPhotographers([])
         }
       } catch (error) {
         console.error("Error fetching featured photographers:", error)
-        // photographers.current = []
+        setPhotographers([])
       } finally {
         setLoading(false)
       }
@@ -263,11 +261,6 @@ const FeaturedPhotographers: React.FC<FeaturedPhotographersProps> = ({ photograp
         <PhotographerCard
           key={idx}
           photographer={photographer}
-          toggleFavorite={toggleFavorite}
-          favorites={favorites}
-          router={router}
-          hoveredPhotographer={hoveredPhotographer}
-          setHoveredPhotographer={setHoveredPhotographer}
         />
       ))}
     </div>

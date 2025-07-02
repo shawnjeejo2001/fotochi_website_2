@@ -10,7 +10,6 @@ import { useState, useEffect } from "react"
 import { Camera, MapPin, Star, Calendar, Users, Award, RotateCcw, Heart, CalendarIcon } from "lucide-react"
 import LocationInput from "@/components/location-input"
 import { useRouter } from "next/navigation"
-import FotochiLogo from "@/components/fotorra-logo"
 import FeaturedPhotographers from "@/components/featured-photographers"
 import { PhotographerCard } from "@/components/photographer-card" // <-- Import the standardized card
 
@@ -111,7 +110,7 @@ export default function Home() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <div className="mb-4 sm:mb-0">
               <button onClick={() => router.push("/")} className="hover:opacity-80 transition-opacity">
-                <FotochiLogo showLogo={false} showText={true} textSize="4xl" />
+                <span className="text-4xl font-semibold leading-none text-gray-900">Fotochi</span>
               </button>
             </div>
             <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
