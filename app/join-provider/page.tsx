@@ -12,7 +12,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Camera, CheckCircle, X, Upload, ArrowLeft } from "lucide-react"
-import FotochiLogo from "@/components/fotorra-logo"
 
 interface SocialMediaProfile {
   platform: string
@@ -247,7 +246,7 @@ export default function JoinProviderPage() {
                 Back
               </Button>
               <button onClick={() => router.push("/")} className="flex items-center gap-2">
-                <FotochiLogo size="md" />
+                <span className="text-2xl font-bold text-gray-900 hover:text-blue-600 transition-colors">Fotochi</span>
               </button>
             </div>
             <Button

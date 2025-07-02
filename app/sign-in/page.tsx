@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Mail, Lock, ArrowLeft } from "lucide-react"
-import FotochiLogo from "@/components/fotorra-logo"
+// import FotochiLogo from "@/components/fotorra-logo"
 
 export default function SignInPage() {
   const router = useRouter()
@@ -87,7 +87,7 @@ export default function SignInPage() {
               onClick={() => router.push("/")}
               className="text-2xl font-bold text-gray-900 hover:text-blue-600 transition-colors"
             >
-              <FotochiLogo size="md" />
+              <span className="text-2xl font-bold text-gray-900 hover:text-blue-600 transition-colors">Fotochi</span>
             </button>
           </div>
         </div>
@@ -97,7 +97,7 @@ export default function SignInPage() {
         <Card className="w-full max-w-md bg-white shadow-xl border border-gray-200">
           <CardHeader className="text-center space-y-4">
             <div className="mx-auto">
-              <FotochiLogo size="lg" />
+              <span className="text-2xl font-bold text-gray-900">Fotochi</span>
             </div>
             <CardTitle className="text-2xl font-bold text-gray-900">Welcome Back</CardTitle>
             <p className="text-gray-600">Sign in to your Fotochi account</p>

@@ -1,11 +1,10 @@
 "use client"
 
 import type React from "react"
-
 import { useEffect, useState, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { Camera } from "lucide-react"
-import PhotographerCard from "@/components/photographer-card"
+import { PhotographerCard } from "@/components/photographer-card"
 
 // The Photographer interface should match the one in PhotographerCard
 interface Photographer {
@@ -23,8 +22,8 @@ interface Photographer {
   subscriptionPlan?: string
   availability?: string
   responseTime?: string
-  profile_image?: string
-  featured_images?: string[]
+  profile_image?: string // To support different data structures
+  featured_images?: string[] // For the hover preview
 }
 
 // Get style color based on main style

@@ -10,7 +10,6 @@ import { useState, useEffect } from "react"
 import { Camera, MapPin, Star, Calendar, Users, Award, RotateCcw, Heart, CalendarIcon } from "lucide-react"
 import LocationInput from "@/components/location-input"
 import { useRouter } from "next/navigation"
-import FotochiLogo from "@/components/fotorra-logo"
 import FeaturedPhotographers from "@/components/featured-photographers"
 
 const photographyStyles = [
@@ -339,8 +338,7 @@ export default function Home() {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <div className="mb-4 sm:mb-0">
               <button onClick={() => router.push("/")} className="hover:opacity-80 transition-opacity">
-                {/* Header: No logo, just large text */}
-                <FotochiLogo showLogo={false} showText={true} textSize="4xl" />
+                <span className="text-4xl font-semibold leading-none text-gray-900">Fotochi</span>
               </button>
               <p className="text-sm sm:text-base text-gray-600 mt-2">
                 Find the perfect photographer or videographer for your needs
@@ -799,8 +797,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
             <div>
-              {/* Footer: No logo, smaller text (50% of text-4xl = text-2xl) */}
-              <FotochiLogo showLogo={false} showText={true} textSize="2xl" className="mb-4" variant="white" />
+              <span className="text-2xl font-semibold leading-none text-white mb-4">Fotochi</span>
               <p className="text-sm text-gray-400">
                 Connecting you with the best photographers and videographers in your area.
               </p>

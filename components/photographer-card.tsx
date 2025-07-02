@@ -72,8 +72,8 @@ export function PhotographerCard({ photographer }: PhotographerCardProps) {
 
     // Filter out the main style from additional styles to prevent duplicates
     const filteredAdditionalStyles = (photographer.additionalStyles || []).filter(
-        (style) => style.toLowerCase() !== photographer.mainStyle?.toLowerCase(),
-    )
+        (style) => (style || "").toLowerCase() !== (photographer.mainStyle || "").toLowerCase()
+    );
     
     // Define the shadow for a cleaner look
     const cardShadow = "shadow-[0_6px_32px_0_rgba(64,104,179,0.12)]"

@@ -10,7 +10,6 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { ArrowLeft, User, Mail, Phone, MapPin } from "lucide-react"
-import FotorraLogo from "@/components/fotorra-logo"
 
 export default function JoinClientPage() {
   const router = useRouter()
@@ -123,7 +122,7 @@ export default function JoinClientPage() {
                 Back
               </Button>
               <button onClick={() => router.push("/")} className="flex items-center gap-2">
-                <FotorraLogo size="md" />
+                <span className="text-2xl font-bold text-gray-900 hover:text-blue-600 transition-colors">Fotochi</span>
               </button>
             </div>
             <Button

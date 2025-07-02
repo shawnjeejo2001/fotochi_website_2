@@ -3,7 +3,6 @@ import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft } from "lucide-react"
-import FotochiLogo from "@/components/fotorra-logo"
 
 const SignUpPage = () => {
   const router = useRouter()
@@ -24,14 +23,16 @@ const SignUpPage = () => {
             </Button>
             <button onClick={() => router.push("/")} className="flex items-center gap-3">
               {/* Logo is now 4 times larger (256x256px) */}
-              <FotochiLogo size="4xl" variant="default" />
+              <span className="text-2xl font-bold text-gray-900 hover:text-blue-600 transition-colors">Fotochi</span>
             </button>
           </div>
         </div>
       </header>
 
       <div className="bg-white p-8 rounded shadow-md w-96 mt-8">
-        <h2 className="text-2xl font-semibold mb-6 text-center text-gray-900">Join Fotochi</h2>
+        <h2 className="text-2xl font-semibold mb-6 text-center text-gray-900">
+          <span className="text-2xl font-bold text-gray-900">Fotochi</span>
+        </h2>
 
         <div className="space-y-4">
           <div className="text-center text-gray-600 mb-6">Choose how you'd like to join our platform:</div>
