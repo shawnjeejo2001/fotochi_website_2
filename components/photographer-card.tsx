@@ -117,7 +117,6 @@ export function PhotographerCard({ photographer }: PhotographerCardProps) {
                             <MapPin className="w-4 h-4 text-blue-400" />
                             {photographer.location}
                         </div>
-                        {photographer.mainStyle && <div className="mt-1 text-xs text-gray-600">{photographer.mainStyle} Photography</div>}
                     </div>
 
                     <div className="flex flex-wrap justify-center gap-2 mb-4">
