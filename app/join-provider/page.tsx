@@ -10,9 +10,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Eye, EyeOff, Loader2, Camera, MapPin, DollarSign, Award } from "lucide-react"
+import { Eye, EyeOff, Loader2, Camera, MapPin, DollarSign, Award, ArrowLeft } from "lucide-react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import { createUserWithEmailAndPassword } from "firebase/auth"
+import { auth } from "@/lib/firebase-client"
 
 export default function JoinProviderPage() {
   const router = useRouter()
@@ -110,38 +112,74 @@ export default function JoinProviderPage() {
     }
 
     try {
+      // Create user with Firebase Auth
+      if (!auth) {
+        throw new Error("Firebase Auth not initialized")
+      }
+
+      const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password)
+
+      // Get ID token
+      const idToken = await userCredential.user.getIdToken()
+
+      // Send user data to our API
       const response = await fetch("/api/auth/signup", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          ...formData,
-          userType: "provider",
+          email: formData.email,
+          password: formData.password,
+          user_type: "provider",
+          full_name: formData.fullName,
+          business_name: formData.businessName,
+          phone: formData.phone,
+          location: formData.location,
+          specialties: formData.specialties,
+          experience: formData.experience,
+          equipment: formData.equipment,
+          portfolio: formData.portfolio,
+          pricing: formData.pricing,
+          availability: formData.availability,
+          bio: formData.bio,
+          website: formData.website,
+          instagram: formData.instagram,
+          idToken,
         }),
       })
 
-      let data
       const contentType = response.headers.get("content-type")
+      let result
 
       if (contentType && contentType.includes("application/json")) {
-        data = await response.json()
+        result = await response.json()
       } else {
         const text = await response.text()
-        throw new Error(text || "Internal server error")
+        throw new Error(`Server error: ${text}`)
       }
 
-      if (data.success) {
+      if (result.success) {
         setSuccess("Application submitted successfully! Please check your email for verification.")
         setTimeout(() => {
           router.push("/sign-in")
         }, 2000)
       } else {
-        setError(data.error || "Registration failed")
+        setError(result.error || "Registration failed")
       }
     } catch (error: any) {
       console.error("Registration error:", error)
-      setError(error.message || "An unexpected error occurred. Please try again.")
+
+      // Handle Firebase Auth errors
+      if (error.code === "auth/email-already-in-use") {
+        setError("An account with this email already exists")
+      } else if (error.code === "auth/weak-password") {
+        setError("Password should be at least 6 characters")
+      } else if (error.code === "auth/invalid-email") {
+        setError("Invalid email address")
+      } else {
+        setError(error.message || "Registration failed. Please try again.")
+      }
     } finally {
       setLoading(false)
     }
@@ -152,6 +190,10 @@ export default function JoinProviderPage() {
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
+          <Link href="/sign-up" className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-4">
+            <ArrowLeft className="w-4 h-4 mr-1" />
+            Back to sign up options
+          </Link>
           <Link href="/" className="text-3xl font-bold text-gray-900 hover:text-blue-600 transition-colors">
             Fotochi
           </Link>

@@ -1,10 +1,14 @@
+/**
+ * Firebase core that is SAFE to import on the server.
+ *  - Exposes the shared `app` instance
+ *  - Exposes Firestore & Storage (both are isomorphic)
+ *  - DOES NOT import `firebase/auth` (browser-only)
+ */
 import { initializeApp, getApps, getApp } from "firebase/app"
-import type { Auth } from "firebase/auth"
 import { getFirestore } from "firebase/firestore"
 import { getStorage } from "firebase/storage"
-import { getAuth } from "firebase/auth" // Declare getAuth before using it
 
-const firebaseConfig = {
+export const firebaseConfig = {
   apiKey: "AIzaSyArC3lT-l-tTbrccja9CzqjY8cVw4keBJE",
   authDomain: "fotochi-47cf6.firebaseapp.com",
   projectId: "fotochi-47cf6",
@@ -14,33 +18,9 @@ const firebaseConfig = {
   measurementId: "G-DZC7FKZ468",
 }
 
-// Initialize Firebase (singleton pattern)
+// Singleton pattern — reuse if already initialised
 const app = getApps().length ? getApp() : initializeApp(firebaseConfig)
 
-/*----------------------------------------------------------------
-  BROWSER-ONLY AUTH (fixes “Component auth has not been registered”)
-----------------------------------------------------------------*/
-let firebaseAuth: Auth | null = null
-if (typeof window !== "undefined") {
-  // We are in the browser – it’s safe to load Auth
-  firebaseAuth = getAuth(app)
-}
-
-// Export `auth` – it will be `null` on the server and a valid
-// Auth instance in the browser.
-export const auth = firebaseAuth
-
-// Initialize Firebase services
+export { app }
 export const db = getFirestore(app)
 export const storage = getStorage(app)
-
-/*----------------------------------------------------------------
-  OPTIONAL ANALYTICS — browser-only, loaded lazily
-----------------------------------------------------------------*/
-export async function initAnalytics() {
-  if (typeof window === "undefined") return null
-  const { getAnalytics } = await import("firebase/analytics")
-  return getAnalytics(app)
-}
-
-export default app
