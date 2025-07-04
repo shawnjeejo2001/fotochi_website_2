@@ -1,20 +1,29 @@
-import { initializeApp, getApps, cert } from "firebase-admin/app"
+import { getApps, initializeApp, cert, type App } from "firebase-admin/app"
 import { getAuth } from "firebase-admin/auth"
 import { getFirestore } from "firebase-admin/firestore"
 import { getStorage } from "firebase-admin/storage"
 
-// Initialize Firebase Admin SDK
+let adminApp: App
+
 if (!getApps().length) {
-  initializeApp({
+  if (!process.env.FIREBASE_PRIVATE_KEY) {
+    // eslint-disable-next-line no-console
+    console.error("Missing Firebase Admin environment variables")
+  }
+
+  adminApp = initializeApp({
     credential: cert({
-      projectId: "fotochi-9dbcb",
+      projectId: process.env.FIREBASE_PROJECT_ID,
       clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+      // Firebase requires escaped newlines in the env var to be converted back
       privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
     }),
-    storageBucket: "fotochi-9dbcb.firebasestorage.app",
+    storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
   })
+} else {
+  adminApp = getApps()[0]!
 }
 
-export const adminAuth = getAuth()
-export const adminDb = getFirestore()
-export const adminStorage = getStorage()
+export const adminAuth = getAuth(adminApp)
+export const adminDb = getFirestore(adminApp)
+export const adminStorage = getStorage(adminApp)

@@ -287,7 +287,7 @@ export default function HomePage() {
               onClick={() => router.push("/join-provider")}
               size="lg"
               variant="outline"
-              className="border-white text-white hover:bg-white hover:text-blue-600"
+              className="bg-white text-blue-600 hover:bg-gray-100"
             >
               Join as Photographer
             </Button>

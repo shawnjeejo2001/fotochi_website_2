@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -11,6 +10,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Eye, EyeOff, Loader2 } from "lucide-react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import { signInWithEmailAndPassword } from "firebase/auth"
+import { auth } from "@/lib/firebase"
 
 export default function SignInPage() {
   const router = useRouter()
@@ -37,13 +38,26 @@ export default function SignInPage() {
     setError("")
 
     try {
+      // Sign in with Firebase Auth
+      const userCredential = await signInWithEmailAndPassword(auth, formData.email, formData.password)
+      const user = userCredential.user
+
+      // Get ID token
+      const idToken = await user.getIdToken()
+
+      // Verify with our backend and get user profile
       const response = await fetch("/api/auth/signin", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ idToken }),
       })
+
+      if (!response.ok) {
+        const errorText = await response.text()
+        throw new Error(errorText || "Sign in failed")
+      }
 
       const data = await response.json()
 
@@ -60,9 +74,27 @@ export default function SignInPage() {
       } else {
         setError(data.error || "Sign in failed")
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Sign in error:", error)
-      setError("An unexpected error occurred. Please try again.")
+
+      // Handle Firebase Auth errors
+      let errorMessage = "An unexpected error occurred. Please try again."
+
+      if (error.code === "auth/user-not-found") {
+        errorMessage = "No account found with this email address."
+      } else if (error.code === "auth/wrong-password") {
+        errorMessage = "Incorrect password."
+      } else if (error.code === "auth/invalid-email") {
+        errorMessage = "Invalid email address."
+      } else if (error.code === "auth/user-disabled") {
+        errorMessage = "This account has been disabled."
+      } else if (error.code === "auth/too-many-requests") {
+        errorMessage = "Too many failed attempts. Please try again later."
+      } else if (error.message) {
+        errorMessage = error.message
+      }
+
+      setError(errorMessage)
     } finally {
       setLoading(false)
     }

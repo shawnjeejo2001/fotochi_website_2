@@ -1,9 +1,12 @@
-import { initializeApp } from "firebase/app"
+import { initializeApp, getApps, getApp } from "firebase/app"
 import { getAuth } from "firebase/auth"
 import { getFirestore } from "firebase/firestore"
 import { getStorage } from "firebase/storage"
-import { getAnalytics } from "firebase/analytics"
 
+/**
+ * Your Firebase web-app configuration (public, safe to ship to client).
+ * NOTE: these values come directly from the user’s message.
+ */
 const firebaseConfig = {
   apiKey: "AIzaSyArC3lT-l-tTbrccja9CzqjY8cVw4keBJE",
   authDomain: "fotochi-9dbcb.firebaseapp.com",
@@ -14,15 +17,23 @@ const firebaseConfig = {
   measurementId: "G-DZC7FKZ468",
 }
 
-// Initialize Firebase
-const app = initializeApp(firebaseConfig)
+/*----------------------------------------------------------------
+  SINGLETON INITIALISATION
+----------------------------------------------------------------*/
+const app = getApps().length ? getApp() : initializeApp(firebaseConfig)
 
-// Initialize Firebase services
+/* Core services (safe on both client & server) */
 export const auth = getAuth(app)
 export const db = getFirestore(app)
 export const storage = getStorage(app)
 
-// Initialize Analytics (only in browser)
-export const analytics = typeof window !== "undefined" ? getAnalytics(app) : null
+/*----------------------------------------------------------------
+  OPTIONAL ANALYTICS — browser-only, loaded lazily
+----------------------------------------------------------------*/
+export async function initAnalytics() {
+  if (typeof window === "undefined") return null
+  const { getAnalytics } = await import("firebase/analytics")
+  return getAnalytics(app)
+}
 
 export default app
