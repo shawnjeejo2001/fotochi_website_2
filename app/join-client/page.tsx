@@ -1,16 +1,17 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Eye, EyeOff, Loader2, CheckCircle, ArrowLeft } from "lucide-react"
+import { Eye, EyeOff, Loader2, CheckCircle, ArrowLeft, Users } from "lucide-react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
+import { createUserWithEmailAndPassword } from "firebase/auth"
+import { auth } from "@/lib/firebase"
 
 export default function JoinClientPage() {
   const router = useRouter()
@@ -70,18 +71,28 @@ export default function JoinClientPage() {
     setError("")
 
     try {
+      // Create user with Firebase Auth
+      const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password)
+      const user = userCredential.user
+
+      // Get ID token
+      const idToken = await user.getIdToken()
+
+      // Send profile data to our API
       const response = await fetch("/api/auth/signup", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          email: formData.email,
-          password: formData.password,
-          userType: "client",
-          fullName: formData.fullName,
-          phone: formData.phone,
-          address: formData.address,
+          idToken,
+          profile: {
+            fullName: formData.fullName,
+            phone: formData.phone,
+            address: formData.address,
+            user_type: "client",
+            created_at: new Date().toISOString(),
+          },
         }),
       })
 
@@ -95,9 +106,23 @@ export default function JoinClientPage() {
       } else {
         setError(data.error || "Registration failed")
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Registration error:", error)
-      setError("An unexpected error occurred. Please try again.")
+
+      // Handle Firebase Auth errors
+      let errorMessage = "An unexpected error occurred. Please try again."
+
+      if (error.code === "auth/email-already-in-use") {
+        errorMessage = "An account with this email already exists."
+      } else if (error.code === "auth/invalid-email") {
+        errorMessage = "Invalid email address."
+      } else if (error.code === "auth/weak-password") {
+        errorMessage = "Password should be at least 6 characters."
+      } else if (error.message) {
+        errorMessage = error.message
+      }
+
+      setError(errorMessage)
     } finally {
       setLoading(false)
     }
@@ -113,7 +138,7 @@ export default function JoinClientPage() {
             </div>
             <h2 className="text-2xl font-bold text-gray-900 mb-2">Welcome to Fotochi!</h2>
             <p className="text-gray-600 mb-4">
-              Your account has been created successfully. You can now sign in and start browsing photographers.
+              Your client account has been created successfully. You can now sign in and start browsing photographers.
             </p>
             <p className="text-sm text-gray-500">Redirecting to sign in...</p>
           </CardContent>
@@ -123,8 +148,8 @@ export default function JoinClientPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 py-8 px-4">
+      <div className="max-w-md mx-auto">
         {/* Header */}
         <div className="text-center mb-8">
           <Link href="/" className="text-3xl font-bold text-gray-900 hover:text-blue-600 transition-colors">
@@ -144,11 +169,12 @@ export default function JoinClientPage() {
         </div>
 
         <Card className="shadow-xl border-0">
-          <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold text-center">Join as Client</CardTitle>
-            <CardDescription className="text-center">
-              Create your account to start finding photographers
-            </CardDescription>
+          <CardHeader className="space-y-1 text-center">
+            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Users className="w-8 h-8 text-blue-600" />
+            </div>
+            <CardTitle className="text-2xl font-bold">Join as Client</CardTitle>
+            <CardDescription>Create your account to start booking professional photographers</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -163,7 +189,6 @@ export default function JoinClientPage() {
                 <Input
                   id="fullName"
                   name="fullName"
-                  type="text"
                   placeholder="Enter your full name"
                   value={formData.fullName}
                   onChange={handleInputChange}
@@ -173,7 +198,7 @@ export default function JoinClientPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email">Email *</Label>
+                <Label htmlFor="email">Email Address *</Label>
                 <Input
                   id="email"
                   name="email"
@@ -250,7 +275,6 @@ export default function JoinClientPage() {
                 <Input
                   id="address"
                   name="address"
-                  type="text"
                   placeholder="Enter your address"
                   value={formData.address}
                   onChange={handleInputChange}
@@ -265,7 +289,7 @@ export default function JoinClientPage() {
                     Creating Account...
                   </>
                 ) : (
-                  "Create Account"
+                  "Create Client Account"
                 )}
               </Button>
             </form>

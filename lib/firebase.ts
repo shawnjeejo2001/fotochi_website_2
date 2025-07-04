@@ -1,29 +1,36 @@
 import { initializeApp, getApps, getApp } from "firebase/app"
-import { getAuth } from "firebase/auth"
+import type { Auth } from "firebase/auth"
 import { getFirestore } from "firebase/firestore"
 import { getStorage } from "firebase/storage"
+import { getAuth } from "firebase/auth" // Declare getAuth before using it
 
-/**
- * Your Firebase web-app configuration (public, safe to ship to client).
- * NOTE: these values come directly from the user’s message.
- */
 const firebaseConfig = {
   apiKey: "AIzaSyArC3lT-l-tTbrccja9CzqjY8cVw4keBJE",
-  authDomain: "fotochi-9dbcb.firebaseapp.com",
-  projectId: "fotochi-9dbcb",
-  storageBucket: "fotochi-9dbcb.firebasestorage.app",
+  authDomain: "fotochi-47cf6.firebaseapp.com",
+  projectId: "fotochi-47cf6",
+  storageBucket: "fotochi-47cf6.firebasestorage.app",
   messagingSenderId: "189583498164",
   appId: "1:189583498164:web:86b465498033f88a7030e1",
   measurementId: "G-DZC7FKZ468",
 }
 
-/*----------------------------------------------------------------
-  SINGLETON INITIALISATION
-----------------------------------------------------------------*/
+// Initialize Firebase (singleton pattern)
 const app = getApps().length ? getApp() : initializeApp(firebaseConfig)
 
-/* Core services (safe on both client & server) */
-export const auth = getAuth(app)
+/*----------------------------------------------------------------
+  BROWSER-ONLY AUTH (fixes “Component auth has not been registered”)
+----------------------------------------------------------------*/
+let firebaseAuth: Auth | null = null
+if (typeof window !== "undefined") {
+  // We are in the browser – it’s safe to load Auth
+  firebaseAuth = getAuth(app)
+}
+
+// Export `auth` – it will be `null` on the server and a valid
+// Auth instance in the browser.
+export const auth = firebaseAuth
+
+// Initialize Firebase services
 export const db = getFirestore(app)
 export const storage = getStorage(app)
 

@@ -16,7 +16,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <span className="text-xl font-bold text-gray-900">Fotochi</span>
         {children}
       </body>
     </html>

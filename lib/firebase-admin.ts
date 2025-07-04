@@ -7,7 +7,6 @@ let adminApp: App
 
 if (!getApps().length) {
   if (!process.env.FIREBASE_PRIVATE_KEY) {
-    // eslint-disable-next-line no-console
     console.error("Missing Firebase Admin environment variables")
   }
 
@@ -15,7 +14,6 @@ if (!getApps().length) {
     credential: cert({
       projectId: process.env.FIREBASE_PROJECT_ID,
       clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      // Firebase requires escaped newlines in the env var to be converted back
       privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
     }),
     storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
