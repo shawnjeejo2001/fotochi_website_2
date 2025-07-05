@@ -1,6 +1,7 @@
 "use client"
 
 import type React from "react"
+
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -81,12 +82,6 @@ export default function SignInPage() {
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back
             </Button>
-            <button
-              onClick={() => router.push("/")}
-              className="text-2xl font-bold text-gray-900 hover:text-blue-600 transition-colors"
-            >
-              Fotochi
-            </button>
           </div>
         </div>
       </header>
@@ -94,11 +89,8 @@ export default function SignInPage() {
       <main className="flex items-center justify-center px-4 py-12">
         <Card className="w-full max-w-md bg-white shadow-xl border border-gray-200">
           <CardHeader className="text-center space-y-4">
-            <div className="mx-auto">
-              <span className="text-2xl font-bold text-gray-900">Fotochi</span>
-            </div>
-            <CardTitle className="text-2xl font-bold text-gray-900">Welcome Back</CardTitle>
-            <p className="text-gray-600">Sign in to your Fotochi account</p>
+            <CardTitle className="text-2xl font-bold text-gray-900 pt-4">Welcome Back</CardTitle>
+            <p className="text-gray-600">Sign in to your account</p>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">

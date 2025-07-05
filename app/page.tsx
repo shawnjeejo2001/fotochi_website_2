@@ -10,7 +10,6 @@ import { useState, useEffect } from "react"
 import { Camera, MapPin, Star, Calendar, Users, Award, RotateCcw, Heart, CalendarIcon } from "lucide-react"
 import LocationInput from "@/components/location-input"
 import { useRouter } from "next/navigation"
-
 import FeaturedPhotographers from "@/components/featured-photographers"
 
 const photographyStyles = [
@@ -340,7 +339,7 @@ export default function Home() {
             <div className="mb-4 sm:mb-0">
               <h1
                 onClick={() => router.push("/")}
-                className="text-4xl font-bold text-gray-900 cursor-pointer hover:opacity-80 transition-opacity"
+                className="text-3xl font-bold text-gray-900 cursor-pointer hover:opacity-80 transition-opacity"
               >
                 Fotochi
               </h1>
@@ -360,7 +359,7 @@ export default function Home() {
                 onClick={() => router.push("/sign-up")}
                 className="text-sm bg-blue-600 hover:bg-blue-700 text-white transition-all duration-200 rounded-lg shadow-md hover:shadow-lg"
               >
-                Join Fotochi
+                Join Us
               </Button>
             </div>
           </div>
@@ -754,7 +753,7 @@ export default function Home() {
       <section className="py-8 sm:py-12 lg:py-16 bg-gray-50/95 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-8 sm:mb-12">
-            <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">Why Choose Fotochi?</h3>
+            <h3 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">Why Choose Us?</h3>
             <p className="text-base sm:text-lg text-gray-600">
               Everything you need to find and book the perfect photographer
             </p>
@@ -801,7 +800,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8">
             <div>
-              <h2 className="text-2xl font-semibold mb-4 text-white">Fotochi</h2>
+              <h2 className="text-xl font-semibold mb-4 text-white">Fotochi</h2>
               <p className="text-sm text-gray-400">
                 Connecting you with the best photographers and videographers in your area.
               </p>
@@ -851,7 +850,7 @@ export default function Home() {
                     onClick={() => router.push("/join-provider")}
                     className="text-gray-400 hover:text-white transition-colors"
                   >
-                    Join Fotochi
+                    Join Us
                   </button>
                 </li>
                 <li>
@@ -919,7 +918,7 @@ export default function Home() {
             </div>
           </div>
           <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-400">
-            <p>&copy; 2024 Fotochi. All rights reserved.</p>
+            <p>&copy; 2024 PhotoApp. All rights reserved.</p>
           </div>
         </div>
       </footer>

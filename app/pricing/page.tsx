@@ -27,7 +27,7 @@ export default function PricingPage() {
               onClick={() => router.push("/")}
               className="text-2xl font-bold text-gray-900 hover:text-blue-600 transition-colors"
             >
-              Fotorra
+              Fotochi
             </button>
           </div>
         </div>

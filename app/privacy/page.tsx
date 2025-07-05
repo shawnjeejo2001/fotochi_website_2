@@ -88,7 +88,7 @@ export default function PrivacyPage() {
 
             <h2>6. Contact Us</h2>
             <p>
-              If you have questions about this Privacy Policy, please contact us at privacy@fotochi.com or through our
+              If you have questions about this Privacy Policy, please contact us at privacy@Fotochi.com or through our
               contact form.
             </p>
           </CardContent>

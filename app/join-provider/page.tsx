@@ -1,6 +1,7 @@
 "use client"
 
 import type React from "react"
+
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -19,6 +20,7 @@ interface SocialMediaProfile {
 
 export default function JoinProviderPage() {
   const router = useRouter()
+  const [step, setStep] = useState(1)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
@@ -49,7 +51,7 @@ export default function JoinProviderPage() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const files = Array.from(e.target.files)
-      setPortfolioFiles((prev) => [...prev, ...files].slice(0, 3)) // Max 3 files
+      setPortfolioFiles((prev) => [...prev, ...files].slice(0, 10)) // Max 10 files
     }
   }
 
@@ -102,6 +104,29 @@ export default function JoinProviderPage() {
     return true
   }
 
+  const validateStep = (stepNumber: number) => {
+    switch (stepNumber) {
+      case 1:
+        const isEmailValid = validateEmail(formData.email)
+        const isPasswordValid = validatePassword(formData.password)
+        return (
+          formData.service &&
+          formData.name &&
+          isEmailValid &&
+          isPasswordValid &&
+          formData.password === formData.confirmPassword
+        )
+      case 2:
+        return formData.dob && formData.location
+      case 3:
+        return formData.mainStyle && formData.aboutText.length >= 50
+      case 4:
+        return portfolioFiles.length >= 3
+      default:
+        return false
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
@@ -109,32 +134,6 @@ export default function JoinProviderPage() {
     setSuccess("")
 
     try {
-      // Validate required fields
-      if (!formData.email || !formData.password || !formData.name || !formData.service) {
-        setError("Please fill in all required fields")
-        setLoading(false)
-        return
-      }
-
-      // Validate email
-      if (!validateEmail(formData.email)) {
-        setLoading(false)
-        return
-      }
-
-      // Validate password
-      if (!validatePassword(formData.password)) {
-        setLoading(false)
-        return
-      }
-
-      // Validate password confirmation
-      if (formData.password !== formData.confirmPassword) {
-        setError("Passwords do not match")
-        setLoading(false)
-        return
-      }
-
       // Validate portfolio files
       if (portfolioFiles.length !== 3) {
         setError("Exactly 3 portfolio images are required")
@@ -176,23 +175,21 @@ export default function JoinProviderPage() {
       const contentType = response.headers.get("content-type")
       if (contentType && contentType.includes("application/json")) {
         const result = await response.json()
-        setSuccess(
-          result.message || "Application submitted successfully! Your application will be reviewed by our admin team.",
-        )
+        setSuccess(result.message || "Application submitted successfully!")
 
-        // Redirect to pending page after a delay
+        // Redirect to home page after a delay
         setTimeout(() => {
-          router.push("/dashboard/photographer/pending")
+          router.push("/")
         }, 2000)
       } else {
         // Handle non-JSON response
         const textResponse = await response.text()
         console.log("Non-JSON response:", textResponse)
-        setSuccess("Application submitted successfully! Your application will be reviewed by our admin team.")
+        setSuccess("Application submitted successfully!")
 
-        // Redirect to pending page after a delay
+        // Redirect to home page after a delay
         setTimeout(() => {
-          router.push("/dashboard/photographer/pending")
+          router.push("/")
         }, 2000)
       }
     } catch (err) {
@@ -237,6 +234,7 @@ export default function JoinProviderPage() {
       <header className="bg-white shadow-sm">
         <div className="max-w-6xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
+            {/* Added Back Button */}
             <div className="flex items-center gap-4">
               <Button
                 variant="ghost"
@@ -247,9 +245,6 @@ export default function JoinProviderPage() {
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back
               </Button>
-              <button onClick={() => router.push("/")} className="flex items-center gap-2">
-                <span className="text-2xl font-bold text-gray-900 hover:text-blue-600 transition-colors">Fotochi</span>
-              </button>
             </div>
             <Button
               variant="outline"
@@ -282,9 +277,7 @@ export default function JoinProviderPage() {
               {/* Basic Information */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <Label htmlFor="email" className="text-gray-900">
-                    Email Address *
-                  </Label>
+                  <Label htmlFor="email" className="text-gray-900">Email Address *</Label>
                   <Input
                     id="email"
                     type="email"
@@ -296,9 +289,7 @@ export default function JoinProviderPage() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="password" className="text-gray-900">
-                    Password *
-                  </Label>
+                  <Label htmlFor="password" className="text-gray-900">Password *</Label>
                   <Input
                     id="password"
                     type="password"
@@ -311,26 +302,9 @@ export default function JoinProviderPage() {
                 </div>
               </div>
 
-              <div>
-                <Label htmlFor="confirmPassword" className="text-gray-900">
-                  Confirm Password *
-                </Label>
-                <Input
-                  id="confirmPassword"
-                  type="password"
-                  value={formData.confirmPassword}
-                  onChange={(e) => updateFormData("confirmPassword", e.target.value)}
-                  required
-                  className="bg-white text-gray-900"
-                  placeholder="Confirm your password"
-                />
-              </div>
-
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <Label htmlFor="name" className="text-gray-900">
-                    Full Name *
-                  </Label>
+                  <Label htmlFor="name" className="text-gray-900">Full Name *</Label>
                   <Input
                     id="name"
                     value={formData.name}
@@ -341,9 +315,7 @@ export default function JoinProviderPage() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="service" className="text-gray-900">
-                    Service Type *
-                  </Label>
+                  <Label htmlFor="service" className="text-gray-900">Service Type *</Label>
                   <Select value={formData.service} onValueChange={(value) => updateFormData("service", value)}>
                     <SelectTrigger className="bg-white text-gray-900">
                       <SelectValue placeholder="Select service type" />
@@ -358,9 +330,7 @@ export default function JoinProviderPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <Label htmlFor="dob" className="text-gray-900">
-                    Date of Birth
-                  </Label>
+                  <Label htmlFor="dob" className="text-gray-900">Date of Birth</Label>
                   <Input
                     id="dob"
                     type="date"
@@ -371,9 +341,7 @@ export default function JoinProviderPage() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="location" className="text-gray-900">
-                    Location
-                  </Label>
+                  <Label htmlFor="location" className="text-gray-900">Location</Label>
                   <Input
                     id="location"
                     placeholder="City, State"
@@ -386,9 +354,7 @@ export default function JoinProviderPage() {
 
               {/* Specialization */}
               <div>
-                <Label htmlFor="mainStyle" className="text-gray-900">
-                  Main Specialization *
-                </Label>
+                <Label htmlFor="mainStyle" className="text-gray-900">Main Specialization</Label>
                 <Select
                   value={formData.mainStyle}
                   onValueChange={(value) => updateFormData("mainStyle", value)}
@@ -409,9 +375,7 @@ export default function JoinProviderPage() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <Label htmlFor="additionalStyle1" className="text-gray-900">
-                    Additional Specialization 1
-                  </Label>
+                  <Label htmlFor="additionalStyle1" className="text-gray-900">Additional Specialization 1</Label>
                   <Select
                     value={formData.additionalStyle1}
                     onValueChange={(value) => updateFormData("additionalStyle1", value)}
@@ -431,9 +395,7 @@ export default function JoinProviderPage() {
                   </Select>
                 </div>
                 <div>
-                  <Label htmlFor="additionalStyle2" className="text-gray-900">
-                    Additional Specialization 2
-                  </Label>
+                  <Label htmlFor="additionalStyle2" className="text-gray-900">Additional Specialization 2</Label>
                   <Select
                     value={formData.additionalStyle2}
                     onValueChange={(value) => updateFormData("additionalStyle2", value)}
@@ -456,9 +418,7 @@ export default function JoinProviderPage() {
 
               {/* About */}
               <div>
-                <Label htmlFor="aboutText" className="text-gray-900">
-                  About You *
-                </Label>
+                <Label htmlFor="aboutText" className="text-gray-900">About You</Label>
                 <Textarea
                   id="aboutText"
                   placeholder="Tell us about your experience, style, and what makes you unique..."
@@ -476,9 +436,7 @@ export default function JoinProviderPage() {
                   {socialMediaProfiles.map((profile, index) => (
                     <div key={index} className="flex flex-col md:flex-row gap-4 items-end">
                       <div className="flex-grow">
-                        <Label htmlFor={`platform-${index}`} className="sr-only">
-                          Platform
-                        </Label>
+                        <Label htmlFor={`platform-${index}`} className="sr-only">Platform</Label>
                         <Input
                           id={`platform-${index}`}
                           placeholder="Platform (e.g., Instagram, Facebook)"
@@ -488,9 +446,7 @@ export default function JoinProviderPage() {
                         />
                       </div>
                       <div className="flex-grow">
-                        <Label htmlFor={`url-${index}`} className="sr-only">
-                          URL
-                        </Label>
+                        <Label htmlFor={`url-${index}`} className="sr-only">URL</Label>
                         <Input
                           id={`url-${index}`}
                           type="url"
@@ -524,6 +480,8 @@ export default function JoinProviderPage() {
                   </Button>
                 </div>
               </div>
+              {/* End Social Media Profiles */}
+
 
               {/* Portfolio Upload - Exactly 3 images required */}
               <div>

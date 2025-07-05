@@ -34,7 +34,7 @@ export default function PendingApprovalPage() {
               onClick={() => router.push("/")}
               className="text-2xl font-bold text-gray-900 hover:text-blue-600 transition-colors"
             >
-              Fotorra
+              Fotochi
             </button>
             <Button variant="outline" onClick={handleSignOut}>
               Sign Out
@@ -49,7 +49,7 @@ export default function PendingApprovalPage() {
             <Clock className="w-12 h-12 text-orange-600" />
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Application Under Review</h1>
-          <p className="text-lg text-gray-600">Thank you for applying to become a photographer on Fotorra!</p>
+          <p className="text-lg text-gray-600">Thank you for applying to become a photographer on Fotochi!</p>
         </div>
 
         <Card className="max-w-2xl mx-auto">
@@ -95,7 +95,7 @@ export default function PendingApprovalPage() {
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-sm text-gray-600">
                   <Mail className="w-4 h-4" />
-                  <span>Email us at support@fotorra.com</span>
+                  <span>Email us at support@fotochi.com</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-gray-600">
                   <Phone className="w-4 h-4" />

@@ -143,7 +143,7 @@ export default function ContactPage() {
                   <Mail className="w-6 h-6 text-blue-600" />
                   <div>
                     <h3 className="font-bold">Email Support</h3>
-                    <p className="text-gray-600">support@fotochi.com</p>
+                    <p className="text-gray-600">support@Fotochi.com</p>
                   </div>
                 </div>
                 <p className="text-sm text-gray-500">We typically respond within 24 hours</p>

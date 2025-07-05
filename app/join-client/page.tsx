@@ -1,6 +1,7 @@
 "use client"
 
 import type React from "react"
+
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -97,24 +98,21 @@ export default function JoinClientPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50"> {/* Changed background to match join-provider */}
       {/* Header */}
-      <header className="bg-white shadow-sm">
+      <header className="bg-white shadow-sm"> {/* Simplified border-b */}
         <div className="max-w-6xl mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+          <div className="flex items-center justify-between"> {/* Adjusted to justify-between for consistency */}
+            <div className="flex items-center gap-4"> {/* Group back button and logo */}
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => router.back()}
-                className="text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                className="text-gray-700 hover:bg-gray-100 hover:text-gray-900" // Removed redundant border-0
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Back
               </Button>
-              <button onClick={() => router.push("/")} className="flex items-center gap-2">
-                <span className="text-2xl font-bold text-gray-900 hover:text-blue-600 transition-colors">Fotochi</span>
-              </button>
             </div>
             <Button
               variant="outline"
@@ -126,8 +124,9 @@ export default function JoinClientPage() {
           </div>
         </div>
       </header>
-      <main className="max-w-md mx-auto px-4 py-12">
-        <Card className="bg-white">
+
+      <main className="max-w-md mx-auto px-4 py-12"> {/* Retained max-w-md for client form */}
+        <Card className="bg-white"> {/* Removed redundant shadow-lg border border-gray-200, Card usually has this */}
           <CardHeader className="text-center">
             <CardTitle className="text-2xl font-bold text-gray-900">Join as a Client</CardTitle>
             <p className="text-gray-600">Create your account to book photographers and videographers</p>

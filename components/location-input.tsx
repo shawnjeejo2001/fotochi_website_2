@@ -1,9 +1,9 @@
 "use client"
 
 import type React from "react"
-import { useState, useEffect, useRef, type FC, type ChangeEvent } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Input } from "@/components/ui/input"
-import { Loader2, Search } from "lucide-react"
+import { Loader2 } from 'lucide-react'
 
 // Define types for Google Maps API
 declare global {
@@ -36,19 +36,20 @@ declare global {
 }
 
 interface LocationInputProps {
-  placeholder?: string
-  onChange?: (value: string) => void
+  value: string
+  onChange: (value: string) => void
   onCoordinatesChange?: (lat: number, lng: number) => void
+  placeholder?: string
   className?: string
 }
 
-const LocationInput: FC<LocationInputProps> = ({
-  placeholder = "Enter a city…",
+export default function LocationInput({
+  value,
   onChange,
   onCoordinatesChange,
+  placeholder = "Enter address, city, state, or zip",
   className = "",
-}) => {
-  const [value, setValue] = useState("")
+}: LocationInputProps) {
   const [suggestions, setSuggestions] = useState<string[]>([])
   const [loading, setLoading] = useState(false)
   const [showSuggestions, setShowSuggestions] = useState(false)
@@ -105,16 +106,15 @@ const LocationInput: FC<LocationInputProps> = ({
   }, [googleLoaded])
 
   // Handle input changes
-  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value
-    setValue(val)
-    onChange?.(val)
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value
+    onChange(newValue)
 
-    if (val.length > 2 && autocompleteRef.current) {
+    if (newValue.length > 2 && autocompleteRef.current) {
       setLoading(true)
       autocompleteRef.current.getPlacePredictions(
         {
-          input: val,
+          input: newValue,
           types: ["address"],
           componentRestrictions: { country: "us" },
         },
@@ -192,7 +192,7 @@ const LocationInput: FC<LocationInputProps> = ({
 
   // Handle suggestion selection
   const handleSelectSuggestion = (suggestion: string) => {
-    setValue(suggestion)
+    onChange(suggestion)
     setSuggestions([])
     setShowSuggestions(false)
 
@@ -239,14 +239,13 @@ const LocationInput: FC<LocationInputProps> = ({
   return (
     <div className="relative" ref={inputRef}>
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
         <Input
           type="text"
           value={value}
-          onChange={handleChange}
+          onChange={handleInputChange}
           onKeyPress={handleKeyPress}
           placeholder={placeholder}
-          className={"pl-9 " + className}
+          className={className}
         />
         {loading && (
           <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
@@ -277,5 +276,3 @@ const LocationInput: FC<LocationInputProps> = ({
     </div>
   )
 }
-
-export default LocationInput

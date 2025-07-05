@@ -95,7 +95,7 @@ export default function TermsPage() {
             </p>
 
             <h2>10. Contact Information</h2>
-            <p>For questions about these terms, contact us at legal@fotochi.com</p>
+            <p>For questions about these terms, contact us at legal@Fotochi.com</p>
           </CardContent>
         </Card>
       </main>

@@ -452,7 +452,7 @@ export default function PhotographerDashboard() {
               onClick={() => router.push("/")}
               className="text-2xl font-bold text-gray-900 hover:text-blue-600 transition-colors"
             >
-              Fotorra
+              Fotochi
             </button>
             <div className="flex items-center gap-4">
               <Button variant="ghost" size="sm" className="text-gray-700 hover:bg-gray-100 hover:text-gray-900">
