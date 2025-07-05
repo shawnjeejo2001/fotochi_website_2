@@ -1,47 +1,115 @@
-import { type NextRequest, NextResponse } from "next/server"
-import { adminAuth, adminDb } from "@/lib/firebase-admin"
+import { NextResponse } from "next/server"
+import { createServerSupabaseClient } from "@/lib/supabase"
 
-export async function POST(request: NextRequest) {
+export async function POST(request: Request) {
   try {
-    const body = await request.json()
-    const { idToken } = body
+    const { email, password } = await request.json()
 
-    if (!idToken) {
-      return NextResponse.json({ error: "ID token is required" }, { status: 400 })
+    console.log("Sign-in attempt for:", email)
+
+    if (!email || !password) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Email and password are required",
+        },
+        { status: 400 },
+      )
     }
 
-    // Verify the ID token
-    const decodedToken = await adminAuth.verifyIdToken(idToken)
-    const uid = decodedToken.uid
+    const supabase = createServerSupabaseClient()
 
-    // Get user profile from Firestore
-    const userDoc = await adminDb.collection("users").doc(uid).get()
+    // Attempt to sign in the user
+    const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+      email: email.toLowerCase(),
+      password,
+    })
 
-    if (!userDoc.exists) {
-      return NextResponse.json({ error: "User profile not found" }, { status: 404 })
+    if (authError) {
+      console.error("Authentication failed:", authError)
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Invalid email or password",
+        },
+        { status: 401 },
+      )
     }
 
-    const userData = userDoc.data()
+    if (!authData.user) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: "Authentication failed",
+        },
+        { status: 401 },
+      )
+    }
+
+    console.log("User authenticated successfully:", authData.user.id)
+
+    // Determine user type and fetch profile
+    let userProfile = null
+    let userType = "client" // default
+
+    // Check if user is a client
+    const { data: clientData, error: clientError } = await supabase
+      .from("clients")
+      .select("*")
+      .eq("user_id", authData.user.id)
+      .single()
+
+    if (clientData && !clientError) {
+      userProfile = clientData
+      userType = "client"
+    } else {
+      // Check if user is a provider
+      const { data: providerData, error: providerError } = await supabase
+        .from("providers")
+        .select("*")
+        .eq("user_id", authData.user.id)
+        .single()
+
+      if (providerData && !providerError) {
+        userProfile = providerData
+        userType = "provider"
+      }
+    }
+
+    if (!userProfile) {
+      console.error("No profile found for user:", authData.user.id)
+      return NextResponse.json(
+        {
+          success: false,
+          error: "User profile not found",
+        },
+        { status: 404 },
+      )
+    }
+
+    console.log("User profile found:", userType)
 
     return NextResponse.json({
       success: true,
+      message: "Sign in successful",
       user: {
-        uid,
-        email: decodedToken.email,
-        ...userData,
+        id: authData.user.id,
+        email: authData.user.email,
+        user_type: userType,
+        full_name: userProfile.full_name || userProfile.name,
+        profile_image: userProfile.profile_image || null,
+        provider: userType === "provider" ? userProfile : null,
+        client: userType === "client" ? userProfile : null,
       },
     })
-  } catch (error: any) {
-    console.error("Signin API Error:", error)
-
-    if (error.code === "auth/id-token-expired") {
-      return NextResponse.json({ error: "Session expired. Please sign in again." }, { status: 401 })
-    }
-
-    if (error.code === "auth/invalid-id-token") {
-      return NextResponse.json({ error: "Invalid credentials" }, { status: 401 })
-    }
-
-    return NextResponse.json({ error: "Authentication failed" }, { status: 500 })
+  } catch (error) {
+    console.error("Sign-in error:", error)
+    return NextResponse.json(
+      {
+        success: false,
+        error: "An unexpected error occurred",
+      },
+      { status: 500 },
+    )
   }
 }

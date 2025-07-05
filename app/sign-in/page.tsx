@@ -6,27 +6,21 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Loader2 } from "lucide-react"
-import Link from "next/link"
-import { signInWithEmailAndPassword } from "firebase/auth"
-import { auth } from "@/lib/firebase-client"
+import { Mail, Lock, ArrowLeft } from "lucide-react"
 
 export default function SignInPage() {
+  const router = useRouter()
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState("")
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   })
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState("")
-  const router = useRouter()
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    })
+  const updateFormData = (field: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -34,147 +28,154 @@ export default function SignInPage() {
     setLoading(true)
     setError("")
 
+    if (!formData.email || !formData.password) {
+      setError("Please enter both email and password")
+      setLoading(false)
+      return
+    }
+
     try {
-      if (!auth) {
-        throw new Error("Firebase Auth not initialized")
-      }
-
-      // Sign in with Firebase
-      const userCredential = await signInWithEmailAndPassword(auth, formData.email, formData.password)
-
-      // Get ID token
-      const idToken = await userCredential.user.getIdToken()
-
-      // Verify with our backend
       const response = await fetch("/api/auth/signin", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ idToken }),
+        body: JSON.stringify(formData),
       })
 
-      const contentType = response.headers.get("content-type")
-      let result
-
-      if (contentType && contentType.includes("application/json")) {
-        result = await response.json()
-      } else {
-        const text = await response.text()
-        throw new Error(`Server error: ${text}`)
-      }
+      const result = await response.json()
 
       if (result.success) {
+        // Store user data in localStorage
+        localStorage.setItem("fotorra_user", JSON.stringify(result.user))
+
         // Redirect based on user type
-        if (result.user.user_type === "client") {
-          router.push("/dashboard/client")
-        } else if (result.user.user_type === "provider") {
-          if (result.user.status === "pending") {
-            router.push("/dashboard/photographer/pending")
-          } else {
-            router.push("/dashboard/photographer")
-          }
+        if (result.user.user_type === "provider") {
+          router.push("/dashboard/photographer")
         } else {
-          router.push("/dashboard")
+          router.push("/dashboard/client")
         }
       } else {
         setError(result.error || "Sign in failed")
       }
-    } catch (error: any) {
-      console.error("Sign in error:", error)
-
-      // Handle Firebase Auth errors
-      if (error.code === "auth/user-not-found") {
-        setError("No account found with this email address")
-      } else if (error.code === "auth/wrong-password") {
-        setError("Incorrect password")
-      } else if (error.code === "auth/invalid-email") {
-        setError("Invalid email address")
-      } else if (error.code === "auth/too-many-requests") {
-        setError("Too many failed attempts. Please try again later.")
-      } else {
-        setError(error.message || "Sign in failed. Please try again.")
-      }
+    } catch (err) {
+      console.error("Error signing in:", err)
+      setError("Failed to sign in. Please try again.")
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div className="text-center">
-          <h2 className="text-3xl font-bold text-gray-900">Sign In</h2>
-          <p className="mt-2 text-gray-600">Welcome back to Fotochi</p>
+    <div className="min-h-screen bg-gradient-radial from-blue-50 via-white to-gray-50">
+      {/* Header */}
+      <header className="bg-white shadow-sm border-b border-gray-200">
+        <div className="max-w-6xl mx-auto px-4 py-4">
+          <div className="flex items-center gap-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => router.back()}
+              className="text-gray-700 hover:bg-gray-100 hover:text-gray-900 border-0"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Back
+            </Button>
+            <button
+              onClick={() => router.push("/")}
+              className="text-2xl font-bold text-gray-900 hover:text-blue-600 transition-colors"
+            >
+              Fotochi
+            </button>
+          </div>
         </div>
+      </header>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Sign In to Your Account</CardTitle>
-            <CardDescription>Enter your credentials to access your dashboard</CardDescription>
+      <main className="flex items-center justify-center px-4 py-12">
+        <Card className="w-full max-w-md bg-white shadow-xl border border-gray-200">
+          <CardHeader className="text-center space-y-4">
+            <div className="mx-auto">
+              <span className="text-2xl font-bold text-gray-900">Fotochi</span>
+            </div>
+            <CardTitle className="text-2xl font-bold text-gray-900">Welcome Back</CardTitle>
+            <p className="text-gray-600">Sign in to your Fotochi account</p>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div>
-                <Label htmlFor="email">Email Address</Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  required
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  placeholder="john@example.com"
-                />
-              </div>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="email" className="text-gray-900 font-medium">
+                    Email Address
+                  </Label>
+                  <div className="relative">
+                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <Input
+                      id="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => updateFormData("email", e.target.value)}
+                      className="pl-10 bg-white text-gray-900 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                      placeholder="Enter your email"
+                      required
+                    />
+                  </div>
+                </div>
 
-              <div>
-                <Label htmlFor="password">Password</Label>
-                <Input
-                  id="password"
-                  name="password"
-                  type="password"
-                  required
-                  value={formData.password}
-                  onChange={handleInputChange}
-                  placeholder="Your password"
-                />
+                <div>
+                  <Label htmlFor="password" className="text-gray-900 font-medium">
+                    Password
+                  </Label>
+                  <div className="relative">
+                    <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <Input
+                      id="password"
+                      type="password"
+                      value={formData.password}
+                      onChange={(e) => updateFormData("password", e.target.value)}
+                      className="pl-10 bg-white text-gray-900 border-gray-300 focus:border-blue-500 focus:ring-blue-500"
+                      placeholder="Enter your password"
+                      required
+                    />
+                  </div>
+                </div>
               </div>
 
               {error && (
-                <Alert variant="destructive">
-                  <AlertDescription>{error}</AlertDescription>
+                <Alert className="border-red-200 bg-red-50">
+                  <AlertDescription className="text-red-800">{error}</AlertDescription>
                 </Alert>
               )}
 
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Signing In...
-                  </>
-                ) : (
-                  "Sign In"
-                )}
+              <Button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 shadow-md hover:shadow-lg transition-all duration-200"
+              >
+                {loading ? "Signing In..." : "Sign In"}
               </Button>
             </form>
 
-            <div className="mt-6 text-center space-y-2">
-              <p className="text-sm text-gray-600">
-                Don't have an account?{" "}
-                <Link href="/sign-up" className="font-medium text-blue-600 hover:text-blue-500">
-                  Sign up here
-                </Link>
-              </p>
-              <p className="text-sm text-gray-600">
-                <Link href="/forgot-password" className="font-medium text-blue-600 hover:text-blue-500">
-                  Forgot your password?
-                </Link>
-              </p>
+            <div className="mt-6 text-center">
+              <span className="text-gray-600">Don't have an account? </span>
+              <button
+                onClick={() => router.push("/sign-up")}
+                className="text-blue-600 hover:text-blue-700 font-medium transition-colors"
+              >
+                Sign Up
+              </button>
+            </div>
+
+            <div className="mt-4 text-center">
+              <button
+                onClick={() => router.push("/forgot-password")}
+                className="text-sm text-gray-500 hover:text-gray-700 transition-colors"
+              >
+                Forgot your password?
+              </button>
             </div>
           </CardContent>
         </Card>
-      </div>
+      </main>
     </div>
   )
 }

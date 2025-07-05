@@ -2,82 +2,104 @@
 
 import type React from "react"
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Eye, EyeOff, Loader2, Camera, MapPin, DollarSign, Award, ArrowLeft } from "lucide-react"
-import { useRouter } from "next/navigation"
-import Link from "next/link"
-import { createUserWithEmailAndPassword } from "firebase/auth"
-import { auth } from "@/lib/firebase-client"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { Camera, CheckCircle, X, Upload, ArrowLeft } from "lucide-react"
+
+interface SocialMediaProfile {
+  platform: string
+  url: string
+}
 
 export default function JoinProviderPage() {
   const router = useRouter()
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-    confirmPassword: "",
-    fullName: "",
-    businessName: "",
-    phone: "",
-    location: "",
-    specialties: [] as string[],
-    experience: "",
-    equipment: "",
-    portfolio: "",
-    pricing: "",
-    availability: "",
-    bio: "",
-    website: "",
-    instagram: "",
-    agreeToTerms: false,
-  })
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
 
-  const specialtyOptions = [
-    "Wedding Photography",
-    "Portrait Photography",
-    "Event Photography",
-    "Corporate Photography",
-    "Fashion Photography",
-    "Product Photography",
-    "Real Estate Photography",
-    "Nature Photography",
-    "Sports Photography",
-    "Street Photography",
-  ]
+  // Form data
+  const [formData, setFormData] = useState({
+    userType: "provider",
+    service: "",
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    dob: "",
+    mainStyle: "",
+    additionalStyle1: "",
+    additionalStyle2: "",
+    location: "",
+    aboutText: "",
+  })
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }))
-    if (error) setError("")
+  const [portfolioFiles, setPortfolioFiles] = useState<File[]>([])
+  const [socialMediaProfiles, setSocialMediaProfiles] = useState<SocialMediaProfile[]>([{ platform: "", url: "" }])
+
+  const updateFormData = (field: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [field]: value }))
   }
 
-  const handleSelectChange = (name: string, value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }))
-    if (error) setError("")
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const files = Array.from(e.target.files)
+      setPortfolioFiles((prev) => [...prev, ...files].slice(0, 3)) // Max 3 files
+    }
   }
 
-  const handleSpecialtyChange = (specialty: string, checked: boolean) => {
-    setFormData((prev) => ({
-      ...prev,
-      specialties: checked ? [...prev.specialties, specialty] : prev.specialties.filter((s) => s !== specialty),
-    }))
+  const removeFile = (index: number) => {
+    setPortfolioFiles((prev) => prev.filter((_, i) => i !== index))
+  }
+
+  // Social media functions
+  const addSocialMediaProfile = () => {
+    setSocialMediaProfiles((prev) => [...prev, { platform: "", url: "" }])
+  }
+
+  const removeSocialMediaProfile = (index: number) => {
+    setSocialMediaProfiles((prev) => prev.filter((_, i) => i !== index))
+  }
+
+  const updateSocialMediaProfile = (index: number, field: "platform" | "url", value: string) => {
+    setSocialMediaProfiles((prev) => prev.map((profile, i) => (i === index ? { ...profile, [field]: value } : profile)))
+  }
+
+  // Email validation
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(email)) {
+      setError("Please enter a valid email address")
+      return false
+    }
+    return true
+  }
+
+  // Password validation
+  const validatePassword = (password: string) => {
+    const hasLowerCase = /[a-z]/.test(password)
+    const hasUpperCase = /[A-Z]/.test(password)
+    const hasNumber = /[0-9]/.test(password)
+    const hasSpecialChar = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]+/.test(password)
+
+    if (password.length < 8) {
+      setError("Password must be at least 8 characters long")
+      return false
+    }
+
+    if (!hasLowerCase || !hasUpperCase || !hasNumber || !hasSpecialChar) {
+      setError(
+        "Password must include at least one lowercase letter, one uppercase letter, one number, and one special character",
+      )
+      return false
+    }
+
+    return true
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -86,132 +108,509 @@ export default function JoinProviderPage() {
     setError("")
     setSuccess("")
 
-    // Validation
-    if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match")
-      setLoading(false)
-      return
-    }
-
-    if (formData.password.length < 6) {
-      setError("Password must be at least 6 characters long")
-      setLoading(false)
-      return
-    }
-
-    if (formData.specialties.length === 0) {
-      setError("Please select at least one specialty")
-      setLoading(false)
-      return
-    }
-
-    if (!formData.agreeToTerms) {
-      setError("Please agree to the terms and conditions")
-      setLoading(false)
-      return
-    }
-
     try {
-      // Create user with Firebase Auth
-      if (!auth) {
-        throw new Error("Firebase Auth not initialized")
+      // Validate required fields
+      if (!formData.email || !formData.password || !formData.name || !formData.service) {
+        setError("Please fill in all required fields")
+        setLoading(false)
+        return
       }
 
-      const userCredential = await createUserWithEmailAndPassword(auth, formData.email, formData.password)
+      // Validate email
+      if (!validateEmail(formData.email)) {
+        setLoading(false)
+        return
+      }
 
-      // Get ID token
-      const idToken = await userCredential.user.getIdToken()
+      // Validate password
+      if (!validatePassword(formData.password)) {
+        setLoading(false)
+        return
+      }
 
-      // Send user data to our API
-      const response = await fetch("/api/auth/signup", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password,
-          user_type: "provider",
-          full_name: formData.fullName,
-          business_name: formData.businessName,
-          phone: formData.phone,
-          location: formData.location,
-          specialties: formData.specialties,
-          experience: formData.experience,
-          equipment: formData.equipment,
-          portfolio: formData.portfolio,
-          pricing: formData.pricing,
-          availability: formData.availability,
-          bio: formData.bio,
-          website: formData.website,
-          instagram: formData.instagram,
-          idToken,
-        }),
+      // Validate password confirmation
+      if (formData.password !== formData.confirmPassword) {
+        setError("Passwords do not match")
+        setLoading(false)
+        return
+      }
+
+      // Validate portfolio files
+      if (portfolioFiles.length !== 3) {
+        setError("Exactly 3 portfolio images are required")
+        setLoading(false)
+        return
+      }
+
+      const submitData = new FormData()
+
+      // Add form fields
+      Object.entries(formData).forEach(([key, value]) => {
+        submitData.append(key, value)
       })
 
-      const contentType = response.headers.get("content-type")
-      let result
+      // Add social media profiles
+      submitData.append(
+        "socialMediaProfiles",
+        JSON.stringify(socialMediaProfiles.filter((profile) => profile.platform && profile.url)),
+      )
 
-      if (contentType && contentType.includes("application/json")) {
-        result = await response.json()
-      } else {
-        const text = await response.text()
-        throw new Error(`Server error: ${text}`)
+      // Add portfolio files
+      portfolioFiles.forEach((file, index) => {
+        submitData.append(`portfolio_${index}`, file)
+      })
+
+      const response = await fetch("/api/providers", {
+        method: "POST",
+        body: submitData,
+      })
+
+      // Check if response is OK before trying to parse JSON
+      if (!response.ok) {
+        const errorText = await response.text()
+        console.error("API error response:", errorText)
+        throw new Error(`API error: ${response.status} ${response.statusText}`)
       }
 
-      if (result.success) {
-        setSuccess("Application submitted successfully! Please check your email for verification.")
+      // Check content type
+      const contentType = response.headers.get("content-type")
+      if (contentType && contentType.includes("application/json")) {
+        const result = await response.json()
+        setSuccess(
+          result.message || "Application submitted successfully! Your application will be reviewed by our admin team.",
+        )
+
+        // Redirect to pending page after a delay
         setTimeout(() => {
-          router.push("/sign-in")
+          router.push("/dashboard/photographer/pending")
         }, 2000)
       } else {
-        setError(result.error || "Registration failed")
-      }
-    } catch (error: any) {
-      console.error("Registration error:", error)
+        // Handle non-JSON response
+        const textResponse = await response.text()
+        console.log("Non-JSON response:", textResponse)
+        setSuccess("Application submitted successfully! Your application will be reviewed by our admin team.")
 
-      // Handle Firebase Auth errors
-      if (error.code === "auth/email-already-in-use") {
-        setError("An account with this email already exists")
-      } else if (error.code === "auth/weak-password") {
-        setError("Password should be at least 6 characters")
-      } else if (error.code === "auth/invalid-email") {
-        setError("Invalid email address")
-      } else {
-        setError(error.message || "Registration failed. Please try again.")
+        // Redirect to pending page after a delay
+        setTimeout(() => {
+          router.push("/dashboard/photographer/pending")
+        }, 2000)
       }
+    } catch (err) {
+      console.error("Error submitting application:", err)
+      setError(`Failed to submit application: ${err instanceof Error ? err.message : "Unknown error"}`)
     } finally {
       setLoading(false)
     }
   }
 
+  const photographyStyles = [
+    "Wedding Photography",
+    "Portrait Photography",
+    "Event Photography",
+    "Corporate Photography",
+    "Fashion Photography",
+    "Nature Photography",
+    "Street Photography",
+    "Product Photography",
+    "Real Estate Photography",
+    "Sports Photography",
+  ]
+
+  const videographyStyles = [
+    "Wedding Videography",
+    "Event Videography",
+    "Corporate Videography",
+    "Music Videos",
+    "Documentary",
+    "Commercial Videos",
+    "Real Estate Videos",
+    "Social Media Content",
+    "Training Videos",
+    "Promotional Videos",
+  ]
+
+  const availableStyles = formData.service === "Photography" ? photographyStyles : videographyStyles
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50 py-8 px-4">
-      <div className="max-w-2xl mx-auto">
-        {/* Header */}
+    <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-white shadow-sm">
+        <div className="max-w-6xl mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => router.back()}
+                className="text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Back
+              </Button>
+              <button onClick={() => router.push("/")} className="flex items-center gap-2">
+                <span className="text-2xl font-bold text-gray-900 hover:text-blue-600 transition-colors">Fotochi</span>
+              </button>
+            </div>
+            <Button
+              variant="outline"
+              onClick={() => router.push("/sign-in")}
+              className="bg-white text-black border-2 border-gray-300 hover:bg-gray-50 hover:border-gray-400 shadow-md hover:shadow-lg"
+            >
+              Sign In
+            </Button>
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-4xl mx-auto px-4 py-12">
         <div className="text-center mb-8">
-          <Link href="/sign-up" className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-4">
-            <ArrowLeft className="w-4 h-4 mr-1" />
-            Back to sign up options
-          </Link>
-          <Link href="/" className="text-3xl font-bold text-gray-900 hover:text-blue-600 transition-colors">
-            Fotochi
-          </Link>
-          <p className="text-gray-600 mt-2">Join as a Professional Photographer</p>
+          <h1 className="text-3xl font-bold text-gray-900 mb-4">Join as a Provider</h1>
+          <p className="text-xl text-gray-600">
+            Share your talent with clients looking for professional photography and videography services
+          </p>
         </div>
 
-        <Card className="shadow-xl border-0">
-          <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold text-center">Photographer Application</CardTitle>
-            <CardDescription className="text-center">
-              Tell us about your photography business and experience
-            </CardDescription>
+        <Card className="bg-white">
+          <CardHeader>
+            <CardTitle className="text-gray-900">Provider Application</CardTitle>
+            <p className="text-gray-600">
+              Complete your application to join our network of professional photographers and videographers
+            </p>
           </CardHeader>
-          <CardContent>
+          <CardContent className="bg-white">
             <form onSubmit={handleSubmit} className="space-y-6">
+              {/* Basic Information */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <Label htmlFor="email" className="text-gray-900">
+                    Email Address *
+                  </Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => updateFormData("email", e.target.value)}
+                    required
+                    className="bg-white text-gray-900"
+                    placeholder="Enter your email address"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="password" className="text-gray-900">
+                    Password *
+                  </Label>
+                  <Input
+                    id="password"
+                    type="password"
+                    value={formData.password}
+                    onChange={(e) => updateFormData("password", e.target.value)}
+                    required
+                    className="bg-white text-gray-900"
+                    placeholder="Create a password"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label htmlFor="confirmPassword" className="text-gray-900">
+                  Confirm Password *
+                </Label>
+                <Input
+                  id="confirmPassword"
+                  type="password"
+                  value={formData.confirmPassword}
+                  onChange={(e) => updateFormData("confirmPassword", e.target.value)}
+                  required
+                  className="bg-white text-gray-900"
+                  placeholder="Confirm your password"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <Label htmlFor="name" className="text-gray-900">
+                    Full Name *
+                  </Label>
+                  <Input
+                    id="name"
+                    value={formData.name}
+                    onChange={(e) => updateFormData("name", e.target.value)}
+                    required
+                    className="bg-white text-gray-900"
+                    placeholder="Enter your full name"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="service" className="text-gray-900">
+                    Service Type *
+                  </Label>
+                  <Select value={formData.service} onValueChange={(value) => updateFormData("service", value)}>
+                    <SelectTrigger className="bg-white text-gray-900">
+                      <SelectValue placeholder="Select service type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Photography">Photography</SelectItem>
+                      <SelectItem value="Videography">Videography</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <Label htmlFor="dob" className="text-gray-900">
+                    Date of Birth
+                  </Label>
+                  <Input
+                    id="dob"
+                    type="date"
+                    value={formData.dob}
+                    onChange={(e) => updateFormData("dob", e.target.value)}
+                    className="bg-white text-gray-900"
+                    placeholder="Select your birth date"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="location" className="text-gray-900">
+                    Location
+                  </Label>
+                  <Input
+                    id="location"
+                    placeholder="City, State"
+                    value={formData.location}
+                    onChange={(e) => updateFormData("location", e.target.value)}
+                    className="bg-white text-gray-900"
+                  />
+                </div>
+              </div>
+
+              {/* Specialization */}
+              <div>
+                <Label htmlFor="mainStyle" className="text-gray-900">
+                  Main Specialization *
+                </Label>
+                <Select
+                  value={formData.mainStyle}
+                  onValueChange={(value) => updateFormData("mainStyle", value)}
+                  disabled={!formData.service}
+                >
+                  <SelectTrigger className="bg-white text-gray-900">
+                    <SelectValue placeholder="Select your main specialization" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableStyles.map((style) => (
+                      <SelectItem key={style} value={style}>
+                        {style}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <Label htmlFor="additionalStyle1" className="text-gray-900">
+                    Additional Specialization 1
+                  </Label>
+                  <Select
+                    value={formData.additionalStyle1}
+                    onValueChange={(value) => updateFormData("additionalStyle1", value)}
+                    disabled={!formData.service}
+                  >
+                    <SelectTrigger className="bg-white text-gray-900">
+                      <SelectValue placeholder="Optional" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">None</SelectItem>
+                      {availableStyles.map((style) => (
+                        <SelectItem key={style} value={style}>
+                          {style}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="additionalStyle2" className="text-gray-900">
+                    Additional Specialization 2
+                  </Label>
+                  <Select
+                    value={formData.additionalStyle2}
+                    onValueChange={(value) => updateFormData("additionalStyle2", value)}
+                    disabled={!formData.service}
+                  >
+                    <SelectTrigger className="bg-white text-gray-900">
+                      <SelectValue placeholder="Optional" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">None</SelectItem>
+                      {availableStyles.map((style) => (
+                        <SelectItem key={style} value={style}>
+                          {style}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {/* About */}
+              <div>
+                <Label htmlFor="aboutText" className="text-gray-900">
+                  About You *
+                </Label>
+                <Textarea
+                  id="aboutText"
+                  placeholder="Tell us about your experience, style, and what makes you unique..."
+                  value={formData.aboutText}
+                  onChange={(e) => updateFormData("aboutText", e.target.value)}
+                  rows={4}
+                  className="bg-white text-gray-900"
+                />
+              </div>
+
+              {/* Social Media Profiles */}
+              <div>
+                <Label className="text-gray-900">Social Media Profiles</Label>
+                <div className="space-y-4 mt-2">
+                  {socialMediaProfiles.map((profile, index) => (
+                    <div key={index} className="flex flex-col md:flex-row gap-4 items-end">
+                      <div className="flex-grow">
+                        <Label htmlFor={`platform-${index}`} className="sr-only">
+                          Platform
+                        </Label>
+                        <Input
+                          id={`platform-${index}`}
+                          placeholder="Platform (e.g., Instagram, Facebook)"
+                          value={profile.platform}
+                          onChange={(e) => updateSocialMediaProfile(index, "platform", e.target.value)}
+                          className="bg-white text-gray-900"
+                        />
+                      </div>
+                      <div className="flex-grow">
+                        <Label htmlFor={`url-${index}`} className="sr-only">
+                          URL
+                        </Label>
+                        <Input
+                          id={`url-${index}`}
+                          type="url"
+                          placeholder="Profile URL (e.g., https://instagram.com/yourhandle)"
+                          value={profile.url}
+                          onChange={(e) => updateSocialMediaProfile(index, "url", e.target.value)}
+                          className="bg-white text-gray-900"
+                        />
+                      </div>
+                      {socialMediaProfiles.length > 1 && (
+                        <Button
+                          type="button"
+                          variant="destructive"
+                          size="icon"
+                          onClick={() => removeSocialMediaProfile(index)}
+                          className="shrink-0"
+                        >
+                          <X className="h-4 w-4" />
+                          <span className="sr-only">Remove profile</span>
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={addSocialMediaProfile}
+                    className="w-full bg-white text-black border-2 border-gray-300 hover:bg-gray-50 hover:border-gray-400 shadow-md hover:shadow-lg"
+                  >
+                    Add Another Social Media Profile
+                  </Button>
+                </div>
+              </div>
+
+              {/* Portfolio Upload - Exactly 3 images required */}
+              <div>
+                <Label className="text-gray-900">Portfolio Images (Required: Exactly 3 images) *</Label>
+                <div className="mt-2 space-y-4">
+                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                    <Upload className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                    <div className="space-y-2">
+                      <p className="text-lg font-medium text-gray-900">Upload Your Best Work</p>
+                      <p className="text-gray-600">Upload exactly 3 high-quality images that showcase your skills</p>
+                      <p className="text-sm text-gray-500">Accepted formats: JPG, PNG, WebP (max 10MB each)</p>
+                    </div>
+                    <input
+                      type="file"
+                      multiple
+                      accept="image/*"
+                      onChange={handleFileChange}
+                      className="hidden"
+                      id="portfolio-upload"
+                      disabled={portfolioFiles.length >= 3}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="mt-4 bg-white text-black border-2 border-gray-300 hover:bg-gray-50 hover:border-gray-400 shadow-md hover:shadow-lg"
+                      onClick={() => document.getElementById("portfolio-upload")?.click()}
+                      disabled={portfolioFiles.length >= 3}
+                    >
+                      <Camera className="w-4 h-4 mr-2" />
+                      {portfolioFiles.length === 0
+                        ? "Choose Images"
+                        : portfolioFiles.length < 3
+                          ? `Add ${3 - portfolioFiles.length} More`
+                          : "3 Images Selected"}
+                    </Button>
+                  </div>
+
+                  {/* Display uploaded files */}
+                  {portfolioFiles.length > 0 && (
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      {portfolioFiles.map((file, index) => (
+                        <div key={index} className="relative">
+                          <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden border-2 border-gray-200">
+                            <img
+                              src={URL.createObjectURL(file) || "/placeholder.svg"}
+                              alt={`Portfolio ${index + 1}`}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                          <Button
+                            type="button"
+                            variant="destructive"
+                            size="sm"
+                            className="absolute -top-2 -right-2 rounded-full w-8 h-8 p-0 bg-red-600 text-white hover:bg-red-700 shadow-md hover:shadow-lg"
+                            onClick={() => removeFile(index)}
+                          >
+                            <X className="w-4 h-4" />
+                          </Button>
+                          <div className="mt-2 text-center">
+                            <p className="text-sm font-medium text-gray-900">Image {index + 1}</p>
+                            <p className="text-xs text-gray-500">{file.name}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Progress indicator */}
+                  <div className="flex items-center justify-center space-x-2">
+                    {[1, 2, 3].map((num) => (
+                      <div
+                        key={num}
+                        className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium ${
+                          portfolioFiles.length >= num ? "bg-green-500 text-white" : "bg-gray-200 text-gray-500"
+                        }`}
+                      >
+                        {portfolioFiles.length >= num ? <CheckCircle className="w-4 h-4" /> : num}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              {/* Messages */}
               {error && (
-                <Alert variant="destructive">
-                  <AlertDescription>{error}</AlertDescription>
+                <Alert className="border-red-200 bg-red-50">
+                  <AlertDescription className="text-red-800">{error}</AlertDescription>
                 </Alert>
               )}
 
@@ -221,305 +620,49 @@ export default function JoinProviderPage() {
                 </Alert>
               )}
 
-              {/* Account Information */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold flex items-center gap-2">
-                  <Award className="w-5 h-5" />
-                  Account Information
-                </h3>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="fullName">Full Name *</Label>
-                    <Input
-                      id="fullName"
-                      name="fullName"
-                      placeholder="Your full name"
-                      value={formData.fullName}
-                      onChange={handleInputChange}
-                      required
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="businessName">Business Name</Label>
-                    <Input
-                      id="businessName"
-                      name="businessName"
-                      placeholder="Your photography business name"
-                      value={formData.businessName}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email Address *</Label>
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    placeholder="your@email.com"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="password">Password *</Label>
-                    <div className="relative">
-                      <Input
-                        id="password"
-                        name="password"
-                        type={showPassword ? "text" : "password"}
-                        placeholder="Create a password"
-                        value={formData.password}
-                        onChange={handleInputChange}
-                        required
-                        className="pr-10"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                      >
-                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="confirmPassword">Confirm Password *</Label>
-                    <div className="relative">
-                      <Input
-                        id="confirmPassword"
-                        name="confirmPassword"
-                        type={showConfirmPassword ? "text" : "password"}
-                        placeholder="Confirm your password"
-                        value={formData.confirmPassword}
-                        onChange={handleInputChange}
-                        required
-                        className="pr-10"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
-                      >
-                        {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="phone">Phone Number</Label>
-                    <Input
-                      id="phone"
-                      name="phone"
-                      type="tel"
-                      placeholder="Your phone number"
-                      value={formData.phone}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="location">Location *</Label>
-                    <div className="relative">
-                      <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                      <Input
-                        id="location"
-                        name="location"
-                        placeholder="City, State"
-                        value={formData.location}
-                        onChange={handleInputChange}
-                        required
-                        className="pl-10"
-                      />
-                    </div>
-                  </div>
-                </div>
+              {/* Submit Button */}
+              <div className="flex justify-center">
+                <Button
+                  type="submit"
+                  disabled={loading || portfolioFiles.length !== 3}
+                  className="w-full md:w-auto px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg"
+                >
+                  {loading ? "Submitting Application..." : "Submit Application"}
+                </Button>
               </div>
-
-              {/* Professional Information */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold flex items-center gap-2">
-                  <Camera className="w-5 h-5" />
-                  Professional Information
-                </h3>
-
-                <div className="space-y-2">
-                  <Label>Photography Specialties *</Label>
-                  <div className="grid grid-cols-2 gap-2">
-                    {specialtyOptions.map((specialty) => (
-                      <div key={specialty} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={specialty}
-                          checked={formData.specialties.includes(specialty)}
-                          onCheckedChange={(checked) => handleSpecialtyChange(specialty, checked as boolean)}
-                        />
-                        <Label htmlFor={specialty} className="text-sm">
-                          {specialty}
-                        </Label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="experience">Years of Experience *</Label>
-                  <Select onValueChange={(value) => handleSelectChange("experience", value)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select your experience level" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="0-1">0-1 years</SelectItem>
-                      <SelectItem value="2-5">2-5 years</SelectItem>
-                      <SelectItem value="6-10">6-10 years</SelectItem>
-                      <SelectItem value="10+">10+ years</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="equipment">Camera Equipment</Label>
-                  <Textarea
-                    id="equipment"
-                    name="equipment"
-                    placeholder="List your main camera equipment (e.g., Canon 5D Mark IV, Sony A7R III, lenses, lighting equipment)"
-                    value={formData.equipment}
-                    onChange={handleInputChange}
-                    rows={3}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="portfolio">Portfolio Website/Link</Label>
-                  <Input
-                    id="portfolio"
-                    name="portfolio"
-                    type="url"
-                    placeholder="https://yourportfolio.com"
-                    value={formData.portfolio}
-                    onChange={handleInputChange}
-                  />
-                </div>
-              </div>
-
-              {/* Business Information */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold flex items-center gap-2">
-                  <DollarSign className="w-5 h-5" />
-                  Business Information
-                </h3>
-
-                <div className="space-y-2">
-                  <Label htmlFor="pricing">Typical Session Pricing</Label>
-                  <Input
-                    id="pricing"
-                    name="pricing"
-                    placeholder="e.g., $200-500 per session"
-                    value={formData.pricing}
-                    onChange={handleInputChange}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="availability">Availability</Label>
-                  <Textarea
-                    id="availability"
-                    name="availability"
-                    placeholder="Describe your typical availability (e.g., weekends, evenings, flexible schedule)"
-                    value={formData.availability}
-                    onChange={handleInputChange}
-                    rows={2}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="bio">Professional Bio</Label>
-                  <Textarea
-                    id="bio"
-                    name="bio"
-                    placeholder="Tell potential clients about yourself, your style, and what makes you unique as a photographer"
-                    value={formData.bio}
-                    onChange={handleInputChange}
-                    rows={4}
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="website">Website</Label>
-                    <Input
-                      id="website"
-                      name="website"
-                      type="url"
-                      placeholder="https://yourwebsite.com"
-                      value={formData.website}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="instagram">Instagram Handle</Label>
-                    <Input
-                      id="instagram"
-                      name="instagram"
-                      placeholder="@yourusername"
-                      value={formData.instagram}
-                      onChange={handleInputChange}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              {/* Terms and Conditions */}
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="agreeToTerms"
-                  checked={formData.agreeToTerms}
-                  onCheckedChange={(checked) => setFormData((prev) => ({ ...prev, agreeToTerms: checked as boolean }))}
-                />
-                <Label htmlFor="agreeToTerms" className="text-sm">
-                  I agree to the{" "}
-                  <Link href="/terms" className="text-blue-600 hover:text-blue-700">
-                    Terms of Service
-                  </Link>{" "}
-                  and{" "}
-                  <Link href="/privacy" className="text-blue-600 hover:text-blue-700">
-                    Privacy Policy
-                  </Link>
-                </Label>
-              </div>
-
-              <Button type="submit" className="w-full h-11 bg-blue-600 hover:bg-blue-700" disabled={loading}>
-                {loading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Submitting Application...
-                  </>
-                ) : (
-                  "Submit Application"
-                )}
-              </Button>
             </form>
+          </CardContent>
+        </Card>
 
-            <div className="mt-6 text-center">
-              <p className="text-sm text-gray-600">
-                Already have an account?{" "}
-                <Link href="/sign-in" className="text-blue-600 hover:text-blue-700 font-medium">
-                  Sign in
-                </Link>
-              </p>
+        {/* Application Requirements */}
+        <Card className="mt-8 bg-white">
+          <CardHeader>
+            <CardTitle className="text-gray-900">Application Requirements</CardTitle>
+          </CardHeader>
+          <CardContent className="bg-white">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <h3 className="font-semibold mb-2 text-gray-900">Portfolio Requirements</h3>
+                <ul className="space-y-1 text-sm text-gray-600">
+                  <li>• Exactly 3 high-quality images</li>
+                  <li>• Images must showcase your best work</li>
+                  <li>• Professional quality and composition</li>
+                  <li>• Relevant to your chosen specialization</li>
+                </ul>
+              </div>
+              <div>
+                <h3 className="font-semibold mb-2 text-gray-900">Application Process</h3>
+                <ul className="space-y-1 text-sm text-gray-600">
+                  <li>• Submit complete application</li>
+                  <li>• Admin review (1-3 business days)</li>
+                  <li>• Email notification of decision</li>
+                  <li>• If approved, portfolio goes live</li>
+                </ul>
+              </div>
             </div>
           </CardContent>
         </Card>
-      </div>
+      </main>
     </div>
   )
 }
