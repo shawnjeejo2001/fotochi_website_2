@@ -86,12 +86,14 @@ export function PhotographerCard({ photographer, isHovered, onMouseEnter, onMous
           </div>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1">
-              {photographer.rating && (
+              {photographer.rating && photographer.reviews > 0 ? (
                 <>
                   <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
                   <span className="font-semibold text-sm">{photographer.rating}</span>
                   <span className="text-xs text-gray-600">({photographer.reviews})</span>
                 </>
+              ) : (
+                <span className="font-semibold text-sm">New</span>
               )}
             </div>
             <span className="font-bold text-base sm:text-lg">{price}</span>
@@ -153,9 +155,15 @@ export function PhotographerCard({ photographer, isHovered, onMouseEnter, onMous
           <div className="text-center opacity-0 group-hover:opacity-100 transition-opacity duration-500">
             {photographer.rating && (
               <div className="flex items-center justify-center gap-2 mb-3">
-                <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                <span className="font-semibold">{photographer.rating}</span>
-                <span className="text-sm opacity-80">({photographer.reviews} reviews)</span>
+                {photographer.rating && photographer.reviews > 0 ? (
+                    <>
+                        <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                        <span className="font-semibold">{photographer.rating}</span>
+                        <span className="text-sm opacity-80">({photographer.reviews} reviews)</span>
+                    </>
+                ) : (
+                    <span className="font-semibold">New</span>
+                )}
               </div>
             )}
             <div className="text-xl sm:text-2xl font-bold mb-3">{price}</div>

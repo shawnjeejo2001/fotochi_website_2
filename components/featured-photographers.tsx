@@ -233,7 +233,7 @@ export default function FeaturedPhotographers() {
                     <MapPin className="w-4 h-4 text-blue-400" />
                     {photographer.location}
                   </div>
-                  <div className="mt-1 text-xs text-gray-600">{photographer.mainStyle} Photography</div>
+                  
                 </div>
                 {/* Badges for styles */}
                 <div className="flex flex-wrap justify-center gap-2 mb-4">
