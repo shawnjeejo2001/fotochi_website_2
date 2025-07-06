@@ -27,9 +27,11 @@ export async function GET(request: NextRequest) {
     if (featuredPhotographers.length < 6) {
       const remainingSlots = 6 - featuredPhotographers.length
 
-      const { data: topRatedPhotographers, error: topRatedError } = await supabase
+      let topRatedPhotographers: any[] | null = null
+
+      // Try ordering by rating / total_bookings first
+      let { data, error } = await supabase
         .from("providers")
-        .select("*")
         .select("*")
         .eq("status", "approved")
         .eq("is_active", true)
@@ -38,12 +40,34 @@ export async function GET(request: NextRequest) {
         .order("total_bookings", { ascending: false })
         .limit(remainingSlots)
 
-      if (topRatedError) {
-        console.error("❌ Error fetching top-rated photographers:", topRatedError)
+      if (error) {
+        console.warn("⚠️  Falling back to created_at ordering because:", error.message)
+        // Retry with a simpler ordering guaranteed to exist
+        const fallback = await supabase
+          .from("providers")
+          .select("*")
+          .eq("status", "approved")
+          .eq("is_active", true)
+          .neq("subscription_plan", "premium")
+          .order("created_at", { ascending: false })
+          .limit(remainingSlots)
+
+        data = fallback.data
+        error = fallback.error
+      }
+
+      if (error) {
+        console.error("❌ Error fetching top-rated photographers:", error)
       } else {
-        featuredPhotographers = [...featuredPhotographers, ...(topRatedPhotographers || [])]
+        topRatedPhotographers = data
+      }
+
+      if (topRatedPhotographers) {
+        featuredPhotographers = [...featuredPhotographers, ...topRatedPhotographers]
       }
     }
+
+    featuredPhotographers = featuredPhotographers.slice(0, 6)
 
     console.log(`✅ Featured API: Found ${featuredPhotographers.length} featured photographers`)
 

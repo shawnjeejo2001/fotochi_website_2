@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -16,57 +15,11 @@ import { toast } from "sonner"
 import { MapPin, Star, Camera, Clock, DollarSign, Award, CheckCircle2, X } from "lucide-react"
 import { format, parseISO } from "date-fns"
 
-// Mock photographer data - in real app, this would come from your database
-const photographerData = {
-  1: {
-    id: 1,
-    name: "John Smith",
-    location: "New York, NY",
-    mainStyle: "Wedding",
-    additionalStyles: ["Portrait", "Event"],
-    rating: 4.8,
-    reviews: 120,
-    basePrice: 500,
-    hourlyRate: 150,
-    bio: "Professional wedding photographer with over 8 years of experience capturing life's most precious moments. Specializing in candid, emotional storytelling through photography.",
-    portfolioImages: [
-      "https://images.unsplash.com/photo-1519741497674-611481863552?w=600&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1606216794074-735e91aa2c92?w=600&h=400&fit=crop",
-    ],
-    equipment: ["Canon EOS R5", "Sony A7R IV", "Professional Lighting Kit"],
-    experience: "8+ years",
-    responseTime: "Within 2 hours",
-    languages: ["English", "Spanish"],
-    certifications: ["Professional Photographers of America", "Wedding Photography Certification"],
-  },
-  2: {
-    id: 2,
-    name: "Emily Johnson",
-    location: "Los Angeles, CA",
-    mainStyle: "Portrait",
-    additionalStyles: ["Street", "Event"],
-    rating: 4.9,
-    reviews: 150,
-    basePrice: 600,
-    hourlyRate: 180,
-    bio: "Creative portrait photographer passionate about capturing authentic personalities and emotions. Known for artistic composition and natural lighting techniques.",
-    portfolioImages: [
-      "https://images.unsplash.com/photo-1494790108755-2616c9c0e8e5?w=600&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&h=400&fit=crop",
-      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=600&h=400&fit=crop",
-    ],
-    equipment: ["Nikon D850", "Canon 5D Mark IV", "Studio Lighting"],
-    experience: "6+ years",
-    responseTime: "Within 1 hour",
-    languages: ["English"],
-    certifications: ["Portrait Photography Master", "Adobe Certified Expert"],
-  },
-}
-
 export default function BookPhotographerPage() {
   const { id } = useParams()
   const router = useRouter()
   const [photographer, setPhotographer] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
   const [currentStep, setCurrentStep] = useState(1)
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined)
   const [showPayment, setShowPayment] = useState(false)
@@ -89,15 +42,28 @@ export default function BookPhotographerPage() {
   })
 
   useEffect(() => {
-    // Get photographer data
-    const photographerInfo = photographerData[id as keyof typeof photographerData]
-    if (photographerInfo) {
-      setPhotographer(photographerInfo)
-    } else {
-      toast.error("Photographer not found")
-      router.push("/photographers")
+    if (id) {
+      const fetchPhotographer = async () => {
+        try {
+          const response = await fetch(`/api/photographers/${id}`)
+          if (!response.ok) {
+            throw new Error("Photographer not found")
+          }
+          const data = await response.json()
+          setPhotographer(data)
+        } catch (error) {
+          console.error("Failed to fetch photographer:", error)
+          toast.error("Photographer not found.")
+          router.push("/photographers")
+        } finally {
+          setLoading(false)
+        }
+      }
+
+      fetchPhotographer()
     }
   }, [id, router])
+
 
   // Close calendar when changing steps
   useEffect(() => {
@@ -187,12 +153,20 @@ export default function BookPhotographerPage() {
     setShowPayment(false)
   }
 
-  if (!photographer) {
-    return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
+  if (loading) {
+      return (
+          <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-600"></div>
       </div>
     )
+  }
+
+  if (!photographer) {
+    return (
+        <div className="min-h-screen bg-white flex items-center justify-center">
+            <p>Photographer not found.</p>
+      </div>
+    );
   }
 
   if (showPayment) {
@@ -271,7 +245,7 @@ export default function BookPhotographerPage() {
                 <CardHeader className="text-center">
                   <div className="w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden bg-gray-200">
                     <img
-                      src={photographer.portfolioImages[0] || "/placeholder.svg"}
+                      src={photographer.portfolio_files[0] || "/placeholder.svg"}
                       alt={photographer.name}
                       className="w-full h-full object-cover"
                     />
@@ -284,7 +258,7 @@ export default function BookPhotographerPage() {
                   <div className="flex items-center justify-center gap-2 mt-2">
                     <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
                     <span className="font-semibold text-black">{photographer.rating}</span>
-                    <span className="text-gray-700">({photographer.reviews} reviews)</span>
+                    <span className="text-gray-700">({photographer.total_bookings} reviews)</span>
                   </div>
                 </CardHeader>
 
@@ -294,10 +268,10 @@ export default function BookPhotographerPage() {
                     <div className="flex flex-wrap gap-2">
                       <Badge variant="default" className="flex items-center gap-1 bg-black text-white">
                         <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-                        {photographer.mainStyle}
+                        {photographer.main_style}
                       </Badge>
-                      {photographer.additionalStyles.map((style: string, index: number) => (
-                        <Badge key={index} variant="secondary" className="bg-gray-200 text-black">
+                      {[photographer.additional_style1, photographer.additional_style2].map((style, index) => (
+                        style && <Badge key={index} variant="secondary" className="bg-gray-200 text-black">
                           {style}
                         </Badge>
                       ))}
@@ -309,15 +283,15 @@ export default function BookPhotographerPage() {
                   <div className="space-y-3 text-sm">
                     <div className="flex items-center gap-2">
                       <Clock className="w-4 h-4 text-gray-600" />
-                      <span className="text-black">Responds {photographer.responseTime}</span>
+                      <span className="text-black">Responds {photographer.responseTime || 'quickly'}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Award className="w-4 h-4 text-gray-600" />
-                      <span className="text-black">{photographer.experience} experience</span>
+                      <span className="text-black">{photographer.experience || 'Experienced'}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <DollarSign className="w-4 h-4 text-gray-600" />
-                      <span className="text-black">Starting at ${photographer.basePrice}</span>
+                      <span className="text-black">Starting at ${photographer.hourly_rate || '100'}</span>
                     </div>
                   </div>
 
@@ -719,7 +693,7 @@ export default function BookPhotographerPage() {
                           <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
                             <div className="flex justify-between items-center mb-3">
                               <span className="text-black font-medium">Photographer's Hourly Rate</span>
-                              <span className="font-semibold text-black">${photographer.hourlyRate}/hour</span>
+                              <span className="font-semibold text-black">${photographer.hourly_rate}/hour</span>
                             </div>
 
                             <div className="flex justify-between items-center mb-3">
@@ -734,7 +708,7 @@ export default function BookPhotographerPage() {
                               <div className="flex justify-between items-center text-lg">
                                 <span className="font-semibold text-black">Total Session Cost</span>
                                 <span className="font-bold text-black">
-                                  ${photographer.hourlyRate * (Number.parseInt(formData.duration.split("-")[0]) || 1)}
+                                  ${photographer.hourly_rate * (Number.parseInt(formData.duration.split("-")[0]) || 1)}
                                 </span>
                               </div>
                             </div>
@@ -750,7 +724,7 @@ export default function BookPhotographerPage() {
                                 <p className="text-3xl font-bold text-black mt-2">
                                   $
                                   {Math.round(
-                                    photographer.hourlyRate *
+                                    photographer.hourly_rate *
                                       (Number.parseInt(formData.duration.split("-")[0]) || 1) *
                                       0.3,
                                   )}
@@ -766,9 +740,9 @@ export default function BookPhotographerPage() {
                                 </span>
                                 <p className="text-3xl font-bold text-black mt-2">
                                   $
-                                  {photographer.hourlyRate * (Number.parseInt(formData.duration.split("-")[0]) || 1) -
+                                  {photographer.hourly_rate * (Number.parseInt(formData.duration.split("-")[0]) || 1) -
                                     Math.round(
-                                      photographer.hourlyRate *
+                                      photographer.hourly_rate *
                                         (Number.parseInt(formData.duration.split("-")[0]) || 1) *
                                         0.3,
                                     )}
@@ -797,7 +771,7 @@ export default function BookPhotographerPage() {
                               <p className="text-sm text-gray-700 mt-1">
                                 Pay $
                                 {Math.round(
-                                  photographer.hourlyRate *
+                                  photographer.hourly_rate *
                                     (Number.parseInt(formData.duration.split("-")[0]) || 1) *
                                     0.3,
                                 )}{" "}
@@ -839,9 +813,9 @@ export default function BookPhotographerPage() {
                               <p className="font-semibold text-black">Event Day</p>
                               <p className="text-sm text-gray-700 mt-1">
                                 Pay remaining $
-                                {photographer.hourlyRate * (Number.parseInt(formData.duration.split("-")[0]) || 1) -
+                                {photographer.hourly_rate * (Number.parseInt(formData.duration.split("-")[0]) || 1) -
                                   Math.round(
-                                    photographer.hourlyRate *
+                                    photographer.hourly_rate *
                                       (Number.parseInt(formData.duration.split("-")[0]) || 1) *
                                       0.3,
                                   )}{" "}
