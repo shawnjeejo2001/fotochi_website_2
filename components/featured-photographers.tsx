@@ -1,3 +1,4 @@
+// components/featured-photographers.tsx
 "use client"
 
 import { useEffect, useState, useRef } from "react"
@@ -49,33 +50,134 @@ export default function FeaturedPhotographers() {
     return responseTimeMapRef.current.get(photographerId)
   }
 
+  // Sample data for FeaturedPhotographers component
+  const sampleFeaturedPhotographers: Photographer[] = [
+    {
+      id: "feat1",
+      name: "Alice Wonderland",
+      location: "Miami, FL",
+      mainStyle: "Wedding",
+      additionalStyles: ["Portrait", "Fashion"],
+      rating: 4.9,
+      reviews: 180,
+      price: "$800",
+      priceType: "Starting at",
+      profileImage: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=400&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", // New profile image URL
+      portfolioImages: [
+        "https://images.unsplash.com/photo-1549298379-4d642b918b9b?q=80&w=400&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", // New portfolio image 1 URL
+        "https://images.unsplash.com/photo-1507038166762-d27a36183a33?q=80&w=400&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", // New portfolio image 2 URL
+      ],
+      subscriptionPlan: "premium",
+      availability: "Mon, Wed, Fri",
+      responseTime: "< 1 hour",
+    },
+    {
+      id: "feat2",
+      name: "Bob The Builder",
+      location: "Orlando, FL",
+      mainStyle: "Corporate",
+      additionalStyles: ["Event", "Headshots"],
+      rating: 4.7,
+      reviews: 95,
+      price: "$600",
+      priceType: "Starting at",
+      profileImage: "https://images.unsplash.com/photo-1521110757288-51f67f65022c?q=80&w=400&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", // New profile image URL
+      portfolioImages: [
+        "https://images.unsplash.com/photo-1504384308000-47b7e51c86a3?q=80&w=400&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", // New portfolio image 1 URL
+        "https://images.unsplash.com/photo-1505373859600-43542289434b?q=80&w=400&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", // New portfolio image 2 URL
+      ],
+      subscriptionPlan: "professional",
+      availability: "Tue, Thu",
+      responseTime: "2 hours",
+    },
+    {
+      id: "feat3",
+      name: "Charlie Chaplin",
+      location: "Tampa, FL",
+      mainStyle: "Portrait",
+      additionalStyles: ["Family", "Maternity"],
+      rating: 4.8,
+      reviews: 150,
+      price: "$400",
+      priceType: "Starting at",
+      profileImage: "https://images.unsplash.com/photo-1531123891838-2a8067871b93?q=80&w=400&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", // New profile image URL
+      portfolioImages: [
+        "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=400&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", // New portfolio image 1 URL
+        "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=400&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", // New portfolio image 2 URL
+      ],
+      subscriptionPlan: "starter",
+      availability: "Weekends",
+      responseTime: "Same day",
+    },
+    {
+      id: "feat4",
+      name: "Diana Prince",
+      location: "Fort Lauderdale, FL",
+      mainStyle: "Fashion",
+      additionalStyles: ["Glamour", "Editorial"],
+      rating: 4.6,
+      reviews: 80,
+      price: "$750",
+      priceType: "Starting at",
+      profileImage: "https://images.unsplash.com/photo-1517841908750-f5a77f070bc?q=80&w=400&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", // New profile image URL
+      portfolioImages: [
+        "https://images.unsplash.com/photo-15418290352-73a700388e63?q=80&w=400&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", // New portfolio image 1 URL
+        "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?q=80&w=400&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", // New portfolio image 2 URL
+      ],
+      subscriptionPlan: "premium",
+      availability: "Mon, Tue, Thu",
+      responseTime: "< 1 hour",
+    },
+    {
+      id: "feat5",
+      name: "Edward Norton",
+      location: "Jacksonville, FL",
+      mainStyle: "Real Estate",
+      additionalStyles: ["Architecture", "Commercial"],
+      rating: 4.7,
+      reviews: 100,
+      price: "$550",
+      priceType: "Starting at",
+      profileImage: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=400&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", // New profile image URL
+      portfolioImages: [
+        "https://images.unsplash.com/photo-1550505190-c0819196b0c2?q=80&w=400&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", // New portfolio image 1 URL
+        "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=400&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", // New portfolio image 2 URL
+      ],
+      subscriptionPlan: "professional",
+      availability: "Wed, Fri",
+      responseTime: "Same day",
+    },
+    {
+      id: "feat6",
+      name: "Fiona Apple",
+      location: "Sarasota, FL",
+      mainStyle: "Food",
+      additionalStyles: ["Product", "Restaurant"],
+      rating: 4.8,
+      reviews: 90,
+      price: "$500",
+      priceType: "Starting at",
+      profileImage: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=400&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", // New profile image URL
+      portfolioImages: [
+        "https://images.unsplash.com/photo-1504754528070-dd0352c8037b?q=80&w=400&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", // New portfolio image 1 URL
+        "https://images.unsplash.com/photo-1518779578900-5151b7e408f6?q=80&w=400&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D", // New portfolio image 2 URL
+      ],
+      subscriptionPlan: "starter",
+      availability: "Thu, Sat",
+      responseTime: "2 hours",
+    },
+  ];
+
   useEffect(() => {
-    const fetchFeaturedPhotographers = async () => {
-      try {
-        setLoading(true)
-        const response = await fetch("/api/photographers/featured")
-        if (response.ok) {
-          const data = await response.json()
-          const photographersWithStaticData = data.photographers.map((p: Photographer) => ({
-            ...p,
-            availability: getRandomAvailability(p.id),
-            responseTime: getRandomResponseTime(p.id),
-            portfolioImages: p.portfolioImages || [],
-          }))
-          setPhotographers(photographersWithStaticData || [])
-        } else {
-          console.error("Failed to fetch featured photographers")
-          setPhotographers([])
-        }
-      } catch (error) {
-        console.error("Error fetching featured photographers:", error)
-        setPhotographers([])
-      } finally {
-        setLoading(false)
-      }
-    }
-    fetchFeaturedPhotographers()
-  }, [])
+    // Directly set photographers to sample data and apply random availability/response time
+    const photographersWithRandomData = sampleFeaturedPhotographers.map((p) => ({
+      ...p,
+      availability: getRandomAvailability(p.id),
+      responseTime: getRandomResponseTime(p.id),
+    }));
+    setPhotographers(photographersWithRandomData);
+    setLoading(false);
+  }, []);
 
   const toggleFavorite = (photographerId: string) => {
     setFavorites((prevFavorites) => {
