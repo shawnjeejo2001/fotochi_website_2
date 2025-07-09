@@ -73,7 +73,7 @@ export default function FeaturedPhotographers() {
     },
     {
       id: "feat2",
-      name: "Bob The Builder",
+      name: "Bob Mathew",
       location: "Orlando, FL",
       mainStyle: "Corporate",
       additionalStyles: ["Event", "Headshots"],

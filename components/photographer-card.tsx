@@ -1,10 +1,13 @@
+// components/photographer-card.tsx
+
 "use client"
 
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { MapPin, Star, Camera } from "lucide-react"
+import { MapPin, Star, Camera, Heart } from "lucide-react"
 import { useRouter } from "next/navigation"
+import { useState } from "react"
 
 interface PhotographerCardProps {
   photographer: {
@@ -23,44 +26,63 @@ interface PhotographerCardProps {
     featured_images?: string[]
     distance?: number
   }
-  isHovered: boolean
-  onMouseEnter: () => void
-  onMouseLeave: () => void
 }
 
-export function PhotographerCard({ photographer, isHovered, onMouseEnter, onMouseLeave }: PhotographerCardProps) {
+export function PhotographerCard({ photographer }: PhotographerCardProps) {
   const router = useRouter()
+  // The hover state is now managed inside each card individually
+  const [isHovered, setIsHovered] = useState(false)
+  const [isFavorite, setIsFavorite] = useState(false)
 
   const mainStyle = photographer.mainStyle || photographer.main_style || "Photography"
   const price = photographer.price || photographer.price_range || "Contact for pricing"
-  const portfolioImage = photographer.portfolioImage || photographer.profile_image
+  const profileImage = photographer.profile_image || photographer.portfolioImage
+
+  const toggleFavorite = (e: React.MouseEvent) => {
+    e.stopPropagation() // Prevents the card's onClick from firing
+    setIsFavorite(!isFavorite)
+  }
 
   return (
     <Card
-      className="hover:shadow-lg transition-all duration-300 cursor-pointer relative overflow-hidden group h-80 sm:h-96"
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
+      className="hover:shadow-lg transition-all duration-300 cursor-pointer relative overflow-hidden group h-[420px]"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      onClick={() => router.push(`/book/${photographer.id}`)}
     >
+      {/* Favorite Button */}
+      <button
+        aria-label="Toggle Favorite"
+        onClick={toggleFavorite}
+        className="absolute top-4 right-4 z-20 p-2 bg-white/80 backdrop-blur-sm rounded-full hover:bg-white transition-all duration-200 shadow-md"
+      >
+        <Heart
+          className={`w-5 h-5 transition-colors ${
+            isFavorite ? "fill-red-500 text-red-500" : "text-gray-400 hover:text-red-400"
+          }`}
+        />
+      </button>
+
       {/* Default Card Content */}
       <div
         className={`absolute inset-0 bg-white transition-opacity duration-300 ${
           isHovered ? "opacity-0" : "opacity-100"
-        }`}
+        } p-6 flex flex-col`}
       >
-        <CardHeader className="text-center relative">
-          <div className="w-20 sm:w-24 md:w-32 h-20 sm:h-24 md:h-32 mx-auto mb-4 relative overflow-hidden rounded-full bg-gray-200 flex items-center justify-center">
-            {photographer.profile_image || photographer.portfolioImage ? (
+        <CardHeader className="text-center relative p-0 mb-4">
+          <div className="w-32 h-32 mx-auto mb-4 relative overflow-hidden rounded-full bg-gray-200 flex items-center justify-center border-4 border-gray-100 shadow-lg">
+            {profileImage ? (
               <img
-                src={photographer.profile_image || photographer.portfolioImage || "/placeholder.svg"}
+                src={profileImage}
                 alt={photographer.name}
                 className="w-full h-full object-cover"
                 loading="lazy"
               />
             ) : (
-              <Camera className="w-6 sm:w-8 md:w-12 h-6 sm:h-8 md:h-12 text-gray-400" />
+              <Camera className="w-12 h-12 text-gray-400" />
             )}
           </div>
-          <h3 className="text-lg sm:text-xl font-medium">{photographer.name}</h3>
+          <h3 className="text-xl font-bold text-gray-900">{photographer.name}</h3>
           <div className="flex items-center justify-center gap-1 text-sm text-gray-600">
             <MapPin className="w-4 h-4" />
             {photographer.location}
@@ -69,57 +91,47 @@ export function PhotographerCard({ photographer, isHovered, onMouseEnter, onMous
             )}
           </div>
         </CardHeader>
-        <CardContent className="space-y-3 sm:space-y-4">
+        <CardContent className="space-y-4 p-0 flex-grow flex flex-col justify-between">
           <div>
-            <Badge variant="default" className="mb-2 text-xs">
-              {mainStyle}
-            </Badge>
-            {photographer.additionalStyles && (
-              <div className="flex flex-wrap gap-1">
-                {photographer.additionalStyles.map((style, index) => (
-                  <Badge key={index} variant="secondary" className="text-xs">
-                    {style}
-                  </Badge>
-                ))}
-              </div>
-            )}
-          </div>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1">
-              {photographer.rating && photographer.reviews > 0 ? (
-                <>
-                  <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                  <span className="font-semibold text-sm">{photographer.rating}</span>
-                  <span className="text-xs text-gray-600">({photographer.reviews})</span>
-                </>
-              ) : (
-                <span className="font-semibold text-sm">New</span>
-              )}
+            <div className="flex flex-wrap gap-2 justify-center mb-4">
+              <Badge variant="default" className="text-xs font-semibold">
+                {mainStyle}
+              </Badge>
+              {photographer.additionalStyles?.slice(0, 2).map((style, index) => (
+                <Badge key={index} variant="secondary" className="text-xs">
+                  {style}
+                </Badge>
+              ))}
             </div>
-            <span className="font-bold text-base sm:text-lg">{price}</span>
+            <div className="flex items-center justify-between text-sm">
+              <div className="flex items-center gap-1 text-gray-600">
+                {photographer.rating && photographer.reviews != null && photographer.reviews > 0 ? (
+                  <>
+                    <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                    <span className="font-semibold text-gray-900">{photographer.rating}</span>
+                    <span className="text-xs">({photographer.reviews})</span>
+                  </>
+                ) : (
+                  <span className="font-semibold text-sm text-gray-700">New</span>
+                )}
+              </div>
+              <span className="font-bold text-lg text-gray-900">{price}</span>
+            </div>
           </div>
           <Button
-            onClick={() => router.push(`/book/${photographer.id}`)}
-            className="w-full bg-black text-white hover:bg-gray-800 transition-colors text-sm shadow-md hover:shadow-lg"
+            className="w-full bg-black text-white hover:bg-gray-800 transition-colors text-sm shadow-md hover:shadow-lg mt-4"
           >
             View Profile & Book
           </Button>
         </CardContent>
       </div>
 
-      {/* Portfolio Preview Overlay */}
-      <div className={`absolute inset-0 transition-opacity duration-300 ${isHovered ? "opacity-100" : "opacity-0"}`}>
+      {/* Portfolio Preview Overlay (Hover State) */}
+      <div className={`absolute inset-0 transition-opacity duration-300 pointer-events-none ${isHovered ? "opacity-100" : "opacity-0"}`}>
         <div className="w-full h-full grid grid-rows-2 gap-0">
           <div className="w-full h-full overflow-hidden">
             <img
-              src={
-                photographer.featured_images?.[0] ||
-                photographer.profile_image ||
-                photographer.portfolioImage ||
-                "/placeholder.svg?height=200&width=400&query=wedding photography" ||
-                "/placeholder.svg" ||
-                "/placeholder.svg"
-              }
+              src={photographer.featured_images?.[0] || profileImage || "/placeholder.svg"}
               alt={`${photographer.name}'s portfolio 1`}
               className="w-full h-full object-cover"
               loading="lazy"
@@ -127,49 +139,18 @@ export function PhotographerCard({ photographer, isHovered, onMouseEnter, onMous
           </div>
           <div className="w-full h-full overflow-hidden">
             <img
-              src={
-                photographer.featured_images?.[1] ||
-                photographer.featured_images?.[0] ||
-                photographer.profile_image ||
-                "/placeholder.svg?height=200&width=400" ||
-                "/placeholder.svg" ||
-                "/placeholder.svg"
-              }
+              src={photographer.featured_images?.[1] || photographer.featured_images?.[0] || profileImage || "/placeholder.svg"}
               alt={`${photographer.name}'s portfolio 2`}
               className="w-full h-full object-cover"
               loading="lazy"
             />
           </div>
         </div>
-        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-all duration-500 flex flex-col justify-between p-4 sm:p-6 text-white">
-          <div className="text-center opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-            <h3 className="text-lg sm:text-xl font-bold mb-2">{photographer.name}</h3>
-            <div className="flex items-center justify-center gap-1 text-sm mb-3">
-              <MapPin className="w-4 h-4" />
-              {photographer.location}
-            </div>
-            <Badge variant="secondary" className="bg-white text-black text-xs">
-              {mainStyle}
-            </Badge>
-          </div>
-          <div className="text-center opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-            {photographer.rating && (
-              <div className="flex items-center justify-center gap-2 mb-3">
-                {photographer.rating && photographer.reviews > 0 ? (
-                    <>
-                        <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                        <span className="font-semibold">{photographer.rating}</span>
-                        <span className="text-sm opacity-80">({photographer.reviews} reviews)</span>
-                    </>
-                ) : (
-                    <span className="font-semibold">New</span>
-                )}
-              </div>
-            )}
-            <div className="text-xl sm:text-2xl font-bold mb-3">{price}</div>
+        <div className="absolute inset-0 flex flex-col items-center justify-end bg-gradient-to-t from-black/80 via-black/30 to-transparent text-white p-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+          <div className="text-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
+            <h3 className="text-2xl font-bold mb-2 drop-shadow-lg">{photographer.name}</h3>
             <Button
-              onClick={() => router.push(`/book/${photographer.id}`)}
-              className="bg-white text-black hover:bg-gray-100 transition-colors text-sm shadow-md hover:shadow-lg"
+              className="bg-white text-black hover:bg-gray-100 transition-colors text-sm shadow-lg hover:shadow-xl"
             >
               View Profile & Book
             </Button>
