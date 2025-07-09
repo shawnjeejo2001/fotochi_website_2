@@ -29,40 +29,34 @@ export default function PhotographersPage() {
   const router = useRouter()
 
   useEffect(() => {
-    // Comment out the entire fetchPhotographers function call and its definition
-    // if you only want to use sample data.
-    // fetchPhotographers is now commented out to only use sample data.
-    // const fetchPhotographers = async () => {
-    //   try {
-    //     setLoading(true)
-    //     const response = await fetch("/api/photographers/search")
+    const fetchPhotographers = async () => {
+      try {
+        setLoading(true)
+        const response = await fetch("/api/photographers/search")
 
-    //     if (!response.ok) {
-    //       throw new Error(`HTTP error! status: ${response.status}`)
-    //     }
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`)
+        }
 
-    //     const data = await response.json()
+        const data = await response.json()
 
-    //     if (data.photographers && Array.isArray(data.photographers)) {
-    //       setPhotographers(data.photographers)
-    //     } else {
-    //       // Fallback to sample data if the response format is unexpected
-    //       setPhotographers(samplePhotographers)
-    //     }
-    //   } catch (error) {
-    //     console.error("Could not fetch photographers:", error)
-    //     setError("Failed to load photographers. Using sample data instead.")
-    //     setPhotographers(samplePhotographers)
-    //   } finally {
-    //     setLoading(false)
-    //   }
-    // }
+        if (data.photographers && Array.isArray(data.photographers)) {
+          setPhotographers(data.photographers)
+        } else {
+          // Fallback to sample data if the response format is unexpected
+          setPhotographers(samplePhotographers)
+        }
+      } catch (error) {
+        console.error("Could not fetch photographers:", error)
+        setError("Failed to load photographers. Using sample data instead.")
+        setPhotographers(samplePhotographers)
+      } finally {
+        setLoading(false)
+      }
+    }
 
-    // Always use sample data when the component mounts
-    setPhotographers(samplePhotographers);
-    setLoading(false); // Set loading to false immediately since we're using static data
-    setError(null); // Clear any previous error
-  }, []); // Empty dependency array means this effect runs once on mount
+    fetchPhotographers()
+  }, [])
 
   // Sample data as fallback with portfolio images
   const samplePhotographers: Photographer[] = [
@@ -162,7 +156,7 @@ export default function PhotographersPage() {
         "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=400&h=300&fit=crop",
       ],
     },
-  ];
+  ]
 
   const renderStars = (rating: number) => {
     return (
