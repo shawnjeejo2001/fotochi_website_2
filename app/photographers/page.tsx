@@ -30,7 +30,9 @@ export default function PhotographersPage() {
     const fetchPhotographers = async () => {
       try {
         setLoading(true)
-        const response = await fetch("/api/photographers/search")
+        // Extract search query from URL
+        const searchParams = new URLSearchParams(window.location.search);
+        const response = await fetch(`/api/photographers/search?${searchParams.toString()}`)
 
         if (!response.ok) {
           throw new Error(`HTTP error! status: ${response.status}`)

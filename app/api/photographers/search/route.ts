@@ -44,8 +44,8 @@ const samplePhotographers = [
     price: "$5000",
     profile_image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=400&fit=crop&crop=faces",
     featured_images: [
-        "https://images.unsplash.com/photo-1492684223066-81342ee5ff30?w=400&h=300&fit=crop",
-        "https://images.unsplash.com/photo-1511578314322-379afb476865?w=400&h=300&fit=crop",
+        "https://images.unsplash.com/photo-1600164913117-2125c1f60b01?w=700&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8d2VkZGluZyUyMHBob3Rvc3xlbnwwfHwwfHx8Mg%3D%3D?w=400&h=300&fit=crop",
+        "https://images.unsplash.com/photo-1721635513009-4bd5d277c437?w=700&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8d2VkZGluZyUyMHBob3Rvc3xlbnwwfHwwfHx8Mg%3D%3D?w=400&h=300&fit=crop",
     ],
     coordinates: { lat: 40.7128, lng: -74.0060 }
   },
@@ -60,8 +60,8 @@ const samplePhotographers = [
       price: "$4800",
       profile_image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=400&h=400&fit=crop&crop=faces",
       featured_images: [
-          "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400&h=300&fit=crop",
-          "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=400&h=300&fit=crop",
+          "https://images.unsplash.com/photo-1617725144327-ed4dc41f4be2?w=700&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MzR8fHdlZGRpbmclMjBwaG90b3N8ZW58MHx8MHx8fDI%3D?w=400&h=300&fit=crop",
+          "https://images.unsplash.com/photo-1537633468298-d86f0c2d4173?w=700&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8d2VkZGluZyUyMHBob3Rvc3xlbnwwfHwwfHx8Mg%3D%3D?w=400&h=300&fit=crop",
       ],
       coordinates: { lat: 32.7765, lng: -79.9311 }
   },
@@ -76,8 +76,8 @@ const samplePhotographers = [
       price: "$5500",
       profile_image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&h=400&fit=crop&crop=faces",
       featured_images: [
-          "https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=400&h=300&fit=crop",
-          "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400&h=300&fit=crop",
+          "https://images.unsplash.com/photo-1537633468298-d86f0c2d4173?w=700&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8d2VkZGluZyUyMHBob3Rvc3xlbnwwfHwwfHx8Mg%3D%3D?w=400&h=300&fit=crop",
+          "https://images.unsplash.com/photo-1600270237614-d20aef1c8b14?w=700&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8d2VkZGluZyUyMHBob3Rvc3xlbnwwfHwwfHx8Mg%3D%3D?w=400&h=300&fit=crop",
       ],
       coordinates: { lat: 25.7617, lng: -80.1918 }
   },
@@ -92,8 +92,8 @@ const samplePhotographers = [
       price: "$7500",
       profile_image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=400&fit=crop&crop=faces",
       featured_images: [
-          "https://images.unsplash.com/photo-1449824913935-59a10b8d2000?w=400&h=300&fit=crop",
-          "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=300&fit=crop",
+          "https://images.unsplash.com/photo-1600270237614-d20aef1c8b14?w=700&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8OHx8d2VkZGluZyUyMHBob3Rvc3xlbnwwfHwwfHx8Mg%3D%3D?w=400&h=300&fit=crop",
+          "https://images.unsplash.com/photo-1507092519286-c691a4c6de74?w=700&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTN8fHdlZGRpbmclMjBwaG90b3N8ZW58MHx8MHx8fDI%3D?w=400&h=300&fit=crop",
       ],
       coordinates: { lat: 48.8566, lng: 2.3522 }
   },
@@ -108,8 +108,8 @@ const samplePhotographers = [
       price: "$4200",
       profile_image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=400&h=400&fit=crop&crop=faces",
       featured_images: [
-          "https://images.unsplash.com/photo-1504754528070-dd0352c8037b?w=400&h=300&fit=crop",
-          "https://images.unsplash.com/photo-1518779578900-5151b7e408f6?w=400&h=300&fit=crop",
+          "https://images.unsplash.com/photo-1617725145063-56958eadf557?w=700&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MjF8fHdlZGRpbmclMjBwaG90b3N8ZW58MHx8MHx8fDI%3D?w=400&h=300&fit=crop",
+          "https://images.unsplash.com/photo-1537633552985-df8429e8048b?w=700&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MzJ8fHdlZGRpbmclMjBwaG90b3N8ZW58MHx8MHx8fDI%3D?w=400&h=300&fit=crop",
       ],
       coordinates: { lat: 53.3498, lng: -6.2603 }
   },
@@ -126,8 +126,8 @@ const samplePhotographers = [
     price: "$800",
     profile_image: "https://images.unsplash.com/photo-1521119989659-a83eee488004?w=400&h=400&fit=crop&crop=faces",
     featured_images: [
-      "https://images.unsplash.com/photo-1522228115018-d8213a816294?w=400&h=300&fit=crop",
-      "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=400&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=700&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8cG9ydHJhaXR8ZW58MHx8MHx8fDI%3D?w=400&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=700&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8cG9ydHJhaXR8ZW58MHx8MHx8fDI%3D?w=400&h=300&fit=crop",
     ],
     coordinates: { lat: 51.5074, lng: -0.1278 },
   },
@@ -142,8 +142,8 @@ const samplePhotographers = [
     price: "$650",
     profile_image: "https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&h=400&fit=crop&crop=faces",
     featured_images: [
-      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&h=300&fit=crop",
-      "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=700&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8cG9ydHJhaXR8ZW58MHx8MHx8fDI%3D?w=400&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=700&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8cG9ydHJhaXR8ZW58MHx8MHx8fDI%3D?w=400&h=300&fit=crop",
     ],
     coordinates: { lat: 40.6782, lng: -73.9442 },
   },
@@ -158,8 +158,8 @@ const samplePhotographers = [
     price: "$950",
     profile_image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&h=400&fit=crop&crop=faces",
     featured_images: [
-      "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=400&h=300&fit=crop",
-      "https://images.unsplash.com/photo-1524250502761-1ac6f2e30d43?w=400&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=700&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8cG9ydHJhaXR8ZW58MHx8MHx8fDI%3D?w=400&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=700&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8cG9ydHJhaXR8ZW58MHx8MHx8fDI%3D?w=400&h=300&fit=crop",
     ],
     coordinates: { lat: 34.0522, lng: -118.2437 },
   },
@@ -174,8 +174,8 @@ const samplePhotographers = [
     price: "$1200",
     profile_image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=400&h=400&fit=crop&crop=faces",
     featured_images: [
-      "https://images.unsplash.com/photo-1552695845-4a023719c1e7?w=400&h=300&fit=crop",
-      "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=700&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8cG9ydHJhaXR8ZW58MHx8MHx8fDI%3D?w=400&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=700&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8NXx8cG9ydHJhaXR8ZW58MHx8MHx8fDI%3D?w=400&h=300&fit=crop",
     ],
     coordinates: { lat: 40.4168, lng: -3.7038 },
   },
@@ -190,8 +190,8 @@ const samplePhotographers = [
     price: "$700",
     profile_image: "https://images.unsplash.com/photo-1533738363-b7f9a261e36c?w=400&h=400&fit=crop&crop=faces",
     featured_images: [
-      "https://images.unsplash.com/photo-1520454366363-c701385f5b24?w=400&h=300&fit=crop",
-      "https://images.unsplash.com/photo-1500048993953-d23a436266cf?w=400&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1528892952291-009c663ce843?w=700&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mjd8fHBvcnRyYWl0fGVufDB8fDB8fHwy?w=400&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1539614474468-f423a2d2270c?w=700&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MzR8fHBvcnRyYWl0fGVufDB8fDB8fHwy?w=400&h=300&fit=crop",
     ],
     coordinates: { lat: 47.6062, lng: -122.3321 },
   },
@@ -206,8 +206,8 @@ const samplePhotographers = [
     price: "$850",
     profile_image: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400&h=400&fit=crop&crop=faces",
     featured_images: [
-      "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=400&h=300&fit=crop",
-      "https://images.unsplash.com/photo-1504274066651-8d31a536b11a?w=400&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1522556189639-b150ed9c4330?w=700&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MzZ8fHBvcnRyYWl0fGVufDB8fDB8fHwy?w=400&h=300&fit=crop",
+      "https://images.unsplash.com/photo-1522556189639-b150ed9c4330?w=700&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MzZ8fHBvcnRyYWl0fGVufDB8fDB8fHwy?w=400&h=300&fit=crop",
     ],
     coordinates: { lat: 29.9511, lng: -90.0715 },
   },
