@@ -74,16 +74,16 @@ export async function GET(request: NextRequest) {
     // Transform data for frontend
     const transformedPhotographers = featuredPhotographers.map((photographer) => ({
       id: photographer.id,
-      name: photographer.name || photographer.full_name || "Unknown Photographer",
-      location: photographer.location || photographer.city || "Location not specified",
-      mainStyle: photographer.main_style || photographer.style || "General",
-      additionalStyles: [photographer.additional_style1, photographer.additional_style2].filter(Boolean),
+      name: photographer.name || "Unknown Photographer",
+      location: photographer.location || "Location not specified",
+      mainStyle: photographer.main_style || "General",
+      additionalStyles: photographer.additional_styles || [],
       rating: photographer.rating || 4.5,
-      reviews: photographer.total_bookings || 0,
-      price: photographer.price ? `$${photographer.price}` : "$500",
-      priceType: photographer.price ? `Starting at $${photographer.price}` : "Starting at $500",
-      portfolioImage: photographer.profile_image,
-      portfolioImages: photographer.portfolio_files || [],
+      reviews: photographer.review_count || 0,
+      price: photographer.price_range || "$500",
+      priceType: photographer.price_range ? `Starting at ${photographer.price_range}` : "Starting at $500",
+      portfolioImage: photographer.profile_picture_url || "/placeholder-user.jpg",
+      portfolioImages: photographer.portfolio_images || [],
       subscriptionPlan: photographer.subscription_plan || "starter",
     }))
 
